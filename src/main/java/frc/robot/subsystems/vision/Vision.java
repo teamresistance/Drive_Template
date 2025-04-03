@@ -38,9 +38,9 @@ public class Vision extends SubsystemBase {
   //          new double[] {1, 2, 3, 4, 5, 6}, new double[] {0.01, 0.01, 0.01, 0.01, 7, 10}, 2);
 
   /* For shooting vs. path following in auto */
-  private double stdDevScalarShooting = 1.6;
+  private final double stdDevScalarShooting = 1.6;
   private final double thetaStdDevCoefficientShooting = 0.075;
-  private PolynomialRegression xyStdDevModel =
+  private final PolynomialRegression xyStdDevModel =
       new PolynomialRegression(
           new double[] {
             0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358, 2.758358,
@@ -48,7 +48,7 @@ public class Vision extends SubsystemBase {
           },
           new double[] {0.005, 0.0135, 0.016, 0.028, 0.0815, 2.4, 3.62, 5.7, 5.9, 5.3, 20.0, 25.0},
           2);
-  private PolynomialRegression thetaStdDevModel =
+  private final PolynomialRegression thetaStdDevModel =
       new PolynomialRegression(
           new double[] {
             0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358, 2.758358,
