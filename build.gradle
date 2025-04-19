@@ -227,7 +227,7 @@ spotless {
 // SonarQube configuration
 sonar {
     properties {
-        property "sonar.projectKey", "teamresistance_2025_ReefScape"
+        property "sonar.projectKey", "teamresistance_Drive_Template"
         property "sonar.organization", "teamresistance"
         property "sonar.host.url", "https://sonarcloud.io"
     }
