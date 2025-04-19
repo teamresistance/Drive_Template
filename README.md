@@ -1,3 +1,3 @@
-# Swerve Template
+# Drive Template
 
-Team Resistance #86's robot code for a swerve template
+Team Resistance #86's base drive template to build future robots.
