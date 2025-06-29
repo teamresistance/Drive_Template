@@ -154,7 +154,9 @@ public class VisionSubsystem extends SubsystemBase {
 
         // Populate array of tag poses with tags used
         for (int id : result.fiducialIDsUsed) {
-          tagPose3ds.add(aprilTagFieldLayout.getTagPose(id).get());
+          if (aprilTagFieldLayout.getTagPose(id).isPresent()) {
+            tagPose3ds.add(aprilTagFieldLayout.getTagPose(id).get());
+          }
         }
 
         Logger.recordOutput("Photon/Camera Pose (Multi tag) " + instanceIndex, cameraPose);
