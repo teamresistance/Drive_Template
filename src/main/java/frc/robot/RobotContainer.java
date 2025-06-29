@@ -33,7 +33,7 @@ public class RobotContainer {
   public final PhotonCamera frontCenterCamera = new PhotonCamera("front-center");
   private final Alert cameraFailureAlert;
   // Subsystems
-  private final DriveSubsystem drive;
+  private final SwerveDriveSubsystem drive;
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
   // Dashboard inputs
@@ -93,21 +93,21 @@ public class RobotContainer {
       if (cameraFailureAlert != null) {
         cameraFailureAlert.set(true);
       }
-      
+
       System.err.println("Failed to initialize vision system: " + e.getMessage());
     }
     aprilTagVision.setDataInterfaces(drive::getPose, drive::addAutoVisionMeasurement);
     return aprilTagVision;
   }
 
-  private DriveSubsystem configureDrive() {
+  private SwerveDriveSubsystem configureDrive() {
     // Real robot, instantiate hardware IO implementations
     // Sim robot, instantiate physics sim IO implementations
     // Replayed robot, disable IO implementations
     return switch (Constants.CURRENT_MODE) {
       case REAL ->
           // Real robot, instantiate hardware IO implementations
-          new DriveSubsystem(
+          new SwerveDriveSubsystem(
               new GyroIOPigeon2(),
               new ModuleIOTalonFX(TunerConstants.FrontLeft),
               new ModuleIOTalonFX(TunerConstants.FrontRight),
@@ -115,7 +115,7 @@ public class RobotContainer {
               new ModuleIOTalonFX(TunerConstants.BackRight));
       case SIM ->
           // Sim robot, instantiate physics sim IO implementations
-          new DriveSubsystem(
+          new SwerveDriveSubsystem(
               new GyroIO() {},
               new ModuleIOSim(TunerConstants.FrontLeft),
               new ModuleIOSim(TunerConstants.FrontRight),
@@ -123,7 +123,7 @@ public class RobotContainer {
               new ModuleIOSim(TunerConstants.BackRight));
       default ->
           // Replayed robot, disable IO implementations
-          new DriveSubsystem(
+          new SwerveDriveSubsystem(
               new GyroIO() {},
               new ModuleIO() {},
               new ModuleIO() {},

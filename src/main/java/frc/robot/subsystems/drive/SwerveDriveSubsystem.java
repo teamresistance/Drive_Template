@@ -45,7 +45,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class DriveSubsystem extends SubsystemBase {
+public class SwerveDriveSubsystem extends SubsystemBase {
 
   public static final double DRIVE_BASE_RADIUS =
       Math.max(
@@ -101,7 +101,7 @@ public class DriveSubsystem extends SubsystemBase {
   private final SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
-  public DriveSubsystem(
+  public SwerveDriveSubsystem(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
       ModuleIO frModuleIO,
