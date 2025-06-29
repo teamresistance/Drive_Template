@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
+/** Configuration class containing the poses of all cameras on the robot for vision processing. */
 public class CameraPoses {
   public static final Pose3d[] cameraPoses =
       new Pose3d[] {

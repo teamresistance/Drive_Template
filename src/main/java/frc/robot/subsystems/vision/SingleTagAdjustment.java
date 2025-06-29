@@ -4,6 +4,10 @@ import frc.robot.util.LoggedTunableNumber;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Utility class for managing adjustment factors for single AprilTag vision measurements. Provides
+ * dynamic tuning of vision measurement confidence based on tag ID.
+ */
 public class SingleTagAdjustment {
 
   // Default adjustment factors for each tag ID.  These are applied if no dynamic override exists.

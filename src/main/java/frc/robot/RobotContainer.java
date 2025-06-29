@@ -90,8 +90,11 @@ public class RobotContainer {
               backLeftCamera);
 
     } catch (IOException e) {
-      assert cameraFailureAlert != null;
-      cameraFailureAlert.set(true);
+      if (cameraFailureAlert != null) {
+        cameraFailureAlert.set(true);
+      }
+      
+      System.err.println("Failed to initialize vision system: " + e.getMessage());
     }
     aprilTagVision.setDataInterfaces(drive::getPose, drive::addAutoVisionMeasurement);
     return aprilTagVision;

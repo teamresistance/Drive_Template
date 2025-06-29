@@ -98,7 +98,9 @@ public class VisionSubsystem extends SubsystemBase {
     try {
       aprilTagFieldLayout =
           AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeWelded.m_resourceFile);
-    } catch (IOException ignored) {
+    } catch (IOException e) {
+      Logger.recordOutput("Vision/FieldLayoutLoadError", e.getMessage());
+      System.err.println("Failed to load AprilTag field layout: " + e.getMessage());
     }
   }
 
