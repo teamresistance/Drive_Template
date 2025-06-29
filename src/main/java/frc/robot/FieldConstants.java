@@ -108,7 +108,9 @@ public final class FieldConstants {
   public static Optional<DriverStation.Alliance> ally;
 
   // Prevent instantiation
-  private FieldConstants() {}
+  private FieldConstants() {
+    // Deliberately empty - prevents instantiation of constants class
+  }
 
   public static AllianceTreePlace getAllianceBranchFromBranch(Place place) {
     ally = DriverStation.getAlliance();

@@ -8,7 +8,9 @@ import edu.wpi.first.wpilibj.RobotBase;
  * call.
  */
 public final class Main {
-  private Main() {}
+  private Main() {
+    // Deliberately empty - prevents instantiation of utility class
+  }
 
   /**
    * Main initialization function. Do not perform any initialization here.

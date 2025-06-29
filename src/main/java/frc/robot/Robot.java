@@ -93,11 +93,15 @@ public class Robot extends LoggedRobot {
 
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    // Deliberately empty - no initialization needed when disabled
+  }
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    // Deliberately empty - all disabled behavior is handled by subsystems and commands
+  }
 
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
@@ -110,7 +114,9 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    // Deliberately empty - autonomous behavior is handled by commands and subsystems
+  }
 
   /** This function is called once when teleop is enabled. */
   @Override
@@ -126,7 +132,9 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    // Deliberately empty - teleop behavior is handled by commands and subsystems
+  }
 
   /** This function is called once when test mode is enabled. */
   @Override
@@ -137,13 +145,19 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during test mode. */
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    // Deliberately empty - test behavior is handled by commands and subsystems
+  }
 
   /** This function is called once when the robot is first started up. */
   @Override
-  public void simulationInit() {}
+  public void simulationInit() {
+    // Deliberately empty - simulation initialization is handled by subsystems
+  }
 
   /** This function is called periodically whilst in simulation. */
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+    // Deliberately empty - simulation behavior is handled by subsystems
+  }
 }
