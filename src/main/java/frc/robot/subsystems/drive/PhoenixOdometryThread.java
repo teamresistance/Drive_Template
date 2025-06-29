@@ -115,7 +115,8 @@ public class PhoenixOdometryThread extends Thread {
           if (phoenixSignals.length > 0) BaseStatusSignal.refreshAll(phoenixSignals);
         }
       } catch (InterruptedException e) {
-        e.printStackTrace();
+        System.err.println("Odometry interrupted: " + e.getMessage());
+        Thread.currentThread().interrupt();
       } finally {
         signalsLock.unlock();
       }
