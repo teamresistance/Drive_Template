@@ -10,6 +10,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SingleTagAdjustment {
 
+  private SingleTagAdjustment() {
+    throw new IllegalStateException("Utility class");
+  }
+
   // Default adjustment factors for each tag ID.  These are applied if no dynamic override exists.
   private static final double[] DEFAULT_TAG_ADJUSTMENTS = {
     1.0, // 1

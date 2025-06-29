@@ -79,9 +79,9 @@ public class VisionSubsystem extends SubsystemBase {
       new LoggedTunableNumber("Vision/multitagDistrubution", 0.65);
 
   AprilTagFieldLayout aprilTagFieldLayout;
-  private Consumer<List<TimestampedVisionUpdate>> visionConsumer = (x) -> {};
+  private Consumer<List<TimestampedVisionUpdate>> visionConsumer = x -> {};
   private List<TimestampedVisionUpdate> visionUpdates;
-  private Supplier<Pose2d> poseSupplier = () -> new Pose2d();
+  private Supplier<Pose2d> poseSupplier = Pose2d::new;
 
   public VisionSubsystem(PhotonCamera... cameras) throws IOException {
     this.cameras = cameras;
@@ -219,9 +219,10 @@ public class VisionSubsystem extends SubsystemBase {
       for (Pose3d tagPose : tagPose3ds) {
         totalDistance += tagPose.getTranslation().getDistance(cameraPose.getTranslation());
       }
+
       double avgDistance = totalDistance / tagPose3ds.size();
-      double xyStdDev = 0.0;
-      double thetaStdDev = 0.0;
+      double xyStdDev;
+      double thetaStdDev;
 
       if (shouldUseMultiTag) {
         xyStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();

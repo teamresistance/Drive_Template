@@ -4,6 +4,11 @@ import edu.wpi.first.math.geometry.*;
 
 /** Geometry utilities for working with translations, rotations, transforms, and poses. */
 public class GeomUtil {
+
+  private GeomUtil() {
+    throw new IllegalStateException("Utility class");
+  }
+
   /**
    * Creates a pure translating transform
    *

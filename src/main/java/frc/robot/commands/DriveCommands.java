@@ -343,10 +343,7 @@ public class DriveCommands {
         // Drive control sequence
         Commands.sequence(
             // Reset acceleration limiter
-            Commands.runOnce(
-                () -> {
-                  limiter.reset(0.0);
-                }),
+            Commands.runOnce(() -> limiter.reset(0.0)),
 
             // Turn in place, accelerating up to full speed
             Commands.run(

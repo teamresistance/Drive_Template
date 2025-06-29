@@ -7,6 +7,11 @@ import edu.wpi.first.math.util.Units;
 
 /** Configuration class containing the poses of all cameras on the robot for vision processing. */
 public class CameraPoses {
+
+  private CameraPoses() {
+    throw new IllegalStateException("Utility class");
+  }
+
   public static final Pose3d[] cameraPoses =
       new Pose3d[] {
         // Front Left
