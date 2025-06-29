@@ -15,7 +15,7 @@ import frc.robot.generated.TunerConstants;
 public final class Constants {
   public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
   public static final boolean TUNING_MODE = false;
-  public static PathConstraints PATH_CONSTRAINTS =
+  public static final PathConstraints PATH_CONSTRAINTS =
       new PathConstraints(
           TunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
           5.0,
