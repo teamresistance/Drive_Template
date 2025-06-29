@@ -230,5 +230,11 @@ sonar {
         property "sonar.projectKey", "teamresistance_Drive_Template"
         property "sonar.organization", "teamresistance"
         property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.sources", "src"
+        property "sonar.exclusions", "src/main/java/frc/robot/generated/**"
+        property "sonar.coverage.exclusions", "**/*"
+        property "sonar.issue.ignore.multicriteria", "e1"
+        property "sonar.issue.ignore.multicriteria.e1.ruleKey", "java:S1186"
+        property "sonar.issue.ignore.multicriteria.e1.resourceKey", "**/*.java"
     }
 }
