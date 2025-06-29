@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.*;
 import java.io.IOException;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonCamera;
@@ -38,7 +38,7 @@ public class RobotContainer {
   private final CommandXboxController driver = new CommandXboxController(0);
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
-  public Vision aprilTagVision;
+  public VisionSubsystem aprilTagVision;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -79,10 +79,10 @@ public class RobotContainer {
     return autoChooser;
   }
 
-  private Vision configureAprilTagVision() {
+  private VisionSubsystem configureAprilTagVision() {
     try {
       aprilTagVision =
-          new Vision(
+          new VisionSubsystem(
               frontLeftCamera,
               frontRightCamera,
               backRightCamera,

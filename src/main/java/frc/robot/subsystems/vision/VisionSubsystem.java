@@ -22,7 +22,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-public class Vision extends SubsystemBase {
+public class VisionSubsystem extends SubsystemBase {
   private static final double fieldBorderMargin = 0.5;
   private static final Pose3d[] cameraPoses = CameraPoses.cameraPoses;
 
@@ -93,7 +93,7 @@ public class Vision extends SubsystemBase {
   private List<TimestampedVisionUpdate> visionUpdates;
   private Supplier<Pose2d> poseSupplier = () -> new Pose2d();
 
-  public Vision(PhotonCamera... cameras) throws IOException {
+  public VisionSubsystem(PhotonCamera... cameras) throws IOException {
     this.cameras = cameras;
     try {
       aprilTagFieldLayout =
