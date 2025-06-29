@@ -350,7 +350,9 @@ public class DriveCommands {
 
             // Turn in place, accelerating up to full speed
             Commands.run(
-                () -> drive.runVelocity(new ChassisSpeeds(0.0, 0.0, limiter.calculate(WHEEL_RADIUS_MAX_VELOCITY))),
+                () ->
+                    drive.runVelocity(
+                        new ChassisSpeeds(0.0, 0.0, limiter.calculate(WHEEL_RADIUS_MAX_VELOCITY))),
                 drive)),
 
         // Measurement sequence

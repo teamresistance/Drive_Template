@@ -14,6 +14,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.DoubleSupplier;
 
+import org.littletonrobotics.junction.Logger;
+
 /**
  * Provides an interface for asynchronously reading high-frequency measurements to a set of queues.
  *
@@ -47,7 +49,7 @@ public class PhoenixOdometryThread extends Thread {
   }
 
   @Override
-  public void start() {
+  public synchronized void start() {
     if (!timestampQueues.isEmpty()) {
       super.start();
     }
@@ -115,7 +117,7 @@ public class PhoenixOdometryThread extends Thread {
           if (phoenixSignals.length > 0) BaseStatusSignal.refreshAll(phoenixSignals);
         }
       } catch (InterruptedException e) {
-        System.err.println("Odometry interrupted: " + e.getMessage());
+        Logger.recordOutput("Odometry/InterruptError", e.getMessage());
         Thread.currentThread().interrupt();
       } finally {
         signalsLock.unlock();

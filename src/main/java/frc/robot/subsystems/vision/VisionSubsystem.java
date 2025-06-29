@@ -90,7 +90,6 @@ public class VisionSubsystem extends SubsystemBase {
           AprilTagFieldLayout.loadFromResource(AprilTagFields.k2025ReefscapeWelded.m_resourceFile);
     } catch (IOException e) {
       Logger.recordOutput("Vision/FieldLayoutLoadError", e.getMessage());
-      System.err.println("Failed to load AprilTag field layout: " + e.getMessage());
     }
   }
 
@@ -142,11 +141,11 @@ public class VisionSubsystem extends SubsystemBase {
 
       boolean shouldUseMultiTag = unprocessedResult.getMultiTagResult().isPresent();
 
-      if (shouldUseMultiTag && unprocessedResult.getMultiTagResult().isPresent()) {
+      if (shouldUseMultiTag) {
         // If multitag, use directly
-        cameraPose =
-            GeomUtil.transform3dToPose3d(
-                unprocessedResult.getMultiTagResult().get().estimatedPose.best);
+        var result = unprocessedResult.getMultiTagResult().get();
+
+        cameraPose = GeomUtil.transform3dToPose3d(result.estimatedPose.best);
 
         robotPose =
             cameraPose
@@ -154,7 +153,7 @@ public class VisionSubsystem extends SubsystemBase {
                 .toPose2d();
 
         // Populate array of tag poses with tags used
-        for (int id : unprocessedResult.getMultiTagResult().get().fiducialIDsUsed) {
+        for (int id : result.fiducialIDsUsed) {
           tagPose3ds.add(aprilTagFieldLayout.getTagPose(id).get());
         }
 

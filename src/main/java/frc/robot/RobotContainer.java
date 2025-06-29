@@ -16,6 +16,8 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.vision.*;
 import java.io.IOException;
+
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonCamera;
 
@@ -94,7 +96,7 @@ public class RobotContainer {
         cameraFailureAlert.set(true);
       }
 
-      System.err.println("Failed to initialize vision system: " + e.getMessage());
+      Logger.recordOutput("Vision/FieldLayoutLoadError", e.getMessage());
     }
     vision.setDataInterfaces(drive::getPose, drive::addAutoVisionMeasurement);
     return vision;
