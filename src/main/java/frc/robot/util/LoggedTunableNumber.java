@@ -10,7 +10,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
  * value not in dashboard.
  */
 public class LoggedTunableNumber {
-  private static final String tableKey = "TunableNumbers";
+  private static final String TABLE_KEY = "TunableNumbers";
 
   private final String key;
   private final Map<Integer, Double> lastHasChangedValues = new HashMap<>();
@@ -24,7 +24,7 @@ public class LoggedTunableNumber {
    * @param dashboardKey Key on dashboard
    */
   public LoggedTunableNumber(String dashboardKey) {
-    this.key = tableKey + "/" + dashboardKey;
+    this.key = TABLE_KEY + "/" + dashboardKey;
   }
 
   /**

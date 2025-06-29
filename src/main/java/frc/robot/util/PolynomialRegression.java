@@ -129,7 +129,7 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
    * @return the coefficient of determination <em>R</em><sup>2</sup>, which is a real number between
    *     0 and 1
    */
-  public double R2() {
+  public double r2() {
     if (sst == 0.0) return 1.0; // constant function
     return 1.0 - sse / sst;
   }
@@ -167,7 +167,7 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
       else s.append(String.format("%.10f %s^%d + ", beta(j), variableName, j));
       j--;
     }
-    s = s.append("  (R^2 = " + String.format("%.3f", R2()) + ")");
+    s = s.append("  (R^2 = " + String.format("%.3f", r2()) + ")");
 
     // replace "+ -2n" with "- 2n"
     return s.toString().replace("+ -", "- ");
@@ -175,15 +175,15 @@ public class PolynomialRegression implements Comparable<PolynomialRegression> {
 
   /** Compare lexicographically. */
   public int compareTo(PolynomialRegression that) {
-    double EPSILON = 1E-5;
+    double epsilon = 1E-5;
     int maxDegree = Math.max(this.degree(), that.degree());
     for (int j = maxDegree; j >= 0; j--) {
       double term1 = 0.0;
       double term2 = 0.0;
       if (this.degree() >= j) term1 = this.beta(j);
       if (that.degree() >= j) term2 = that.beta(j);
-      if (Math.abs(term1) < EPSILON) term1 = 0.0;
-      if (Math.abs(term2) < EPSILON) term2 = 0.0;
+      if (Math.abs(term1) < epsilon) term1 = 0.0;
+      if (Math.abs(term2) < epsilon) term2 = 0.0;
       if (term1 < term2) return -1;
       else if (term1 > term2) return +1;
     }
