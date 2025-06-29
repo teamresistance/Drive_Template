@@ -191,7 +191,7 @@ public class VisionSubsystem extends SubsystemBase {
 
       boolean shouldUseMultiTag = unprocessedResult.getMultiTagResult().isPresent();
 
-      if (shouldUseMultiTag) {
+      if (shouldUseMultiTag && unprocessedResult.getMultiTagResult().isPresent()) {
         // If multitag, use directly
         cameraPose =
             GeomUtil.transform3dToPose3d(
@@ -212,7 +212,7 @@ public class VisionSubsystem extends SubsystemBase {
         // If not using multitag, disambiugate and then use
         PhotonTrackedTarget target = unprocessedResult.targets.get(0);
 
-        if (aprilTagFieldLayout.getTagPose(target.getFiducialId()).isEmpty()) {
+        if (aprilTagFieldLayout.getTagPose(target.getFiducialId()).isPresent()) {
           continue;
         }
 
