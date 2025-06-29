@@ -58,7 +58,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY =
       new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
-  static final Lock odometryLock = new ReentrantLock();
+  static final Lock ODOMETRY_LOCK = new ReentrantLock();
   // PathPlanner config constants
   private static final double ROBOT_MASS_KG = Units.lbsToKilograms(125.0);
   private static final double ROBOT_MOI =
@@ -167,13 +167,13 @@ public class SwerveDriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    odometryLock.lock(); // Prevents odometry updates while reading data
+    ODOMETRY_LOCK.lock(); // Prevents odometry updates while reading data
     gyroIO.updateInputs(gyroInputs);
     Logger.processInputs("Drive/Gyro", gyroInputs);
     for (var module : modules) {
       module.periodic();
     }
-    odometryLock.unlock();
+    ODOMETRY_LOCK.unlock();
 
     // Stop moving when disabled
     if (DriverStation.isDisabled()) {

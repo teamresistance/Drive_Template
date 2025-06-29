@@ -23,8 +23,8 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionSubsystem extends SubsystemBase {
-  private static final double fieldBorderMargin = 0.5;
-  private static final Pose3d[] cameraPoses = CameraPoses.cameraPoses;
+  private static final double FIELD_BORDER_MARGIN = 0.5;
+  private static final Pose3d[] CAMERA_POSES = CameraPoses.cameraPoses;
 
   private final PhotonCamera[] cameras;
   /* For shooting vs. path following in auto */
@@ -38,9 +38,9 @@ public class VisionSubsystem extends SubsystemBase {
   //          new double[] {1, 2, 3, 4, 5, 6}, new double[] {0.01, 0.01, 0.01, 0.01, 7, 10}, 2);
 
   /* For shooting vs. path following in auto */
-  private final double stdDevScalarShooting = 1.6;
-  private final double thetaStdDevCoefficientShooting = 0.075;
-  private final PolynomialRegression xyStdDevModel =
+  private static final double STD_DEV_SCALAR_SHOOTING = 1.6;
+  private static final double THETA_STD_DEV_COEFFICIENT_SHOOTING = 0.075;
+  private static final PolynomialRegression XY_STD_DEV_MODEL =
       new PolynomialRegression(
           new double[] {
             0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358, 2.758358,
@@ -48,7 +48,7 @@ public class VisionSubsystem extends SubsystemBase {
           },
           new double[] {0.005, 0.0135, 0.016, 0.028, 0.0815, 2.4, 3.62, 5.7, 5.9, 5.3, 20.0, 25.0},
           2);
-  private final PolynomialRegression thetaStdDevModel =
+  private static final PolynomialRegression THETA_STD_DEV_MODEL =
       new PolynomialRegression(
           new double[] {
             0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358, 2.758358,
@@ -59,33 +59,33 @@ public class VisionSubsystem extends SubsystemBase {
           },
           1);
 
-  public final LoggedTunableNumber xyStdDevThreshold_1 =
+  public final LoggedTunableNumber XY_STD_DEV_THRESHOLD_1 =
       new LoggedTunableNumber("Vision/xyStdDevThreshold 1 meter", 0.01);
-  public final LoggedTunableNumber xyStdDevThreshold_2 =
+  public final LoggedTunableNumber XY_STD_DEV_THRESHOLD_2 =
       new LoggedTunableNumber("Vision/xyStdDevThreshold 2 meter", 0.01);
-  public final LoggedTunableNumber xyStdDevThreshold_3 =
+  public final LoggedTunableNumber XY_STD_DEV_THRESHOLD_3 =
       new LoggedTunableNumber("Vision/xyStdDevThreshold 3 meter", 0.01);
-  public final LoggedTunableNumber xyStdDevThreshold_4 =
+  public final LoggedTunableNumber XY_STD_DEV_THRESHOLD_4 =
       new LoggedTunableNumber("Vision/xyStdDevThreshold 4 meter", 0.01);
-  public final LoggedTunableNumber xyStdDevThreshold_5 =
+  public final LoggedTunableNumber XY_STD_DEV_THRESHOLD_5 =
       new LoggedTunableNumber("Vision/xyStdDevThreshold 5 meter", 7);
-  public final LoggedTunableNumber xyStdDevThreshold_6 =
+  public final LoggedTunableNumber XY_STD_DEV_THRESHOLD_6 =
       new LoggedTunableNumber("Vision/xyStdDevThreshold 6 meter", 10);
 
-  public final LoggedTunableNumber thetaStdDevThreshold_1 =
+  public final LoggedTunableNumber THETA_STD_DEV_THRESHOLD_1 =
       new LoggedTunableNumber("Vision/thetaStdDevThreshold 1 meter", 0.01);
-  public final LoggedTunableNumber thetaStdDevThreshold_2 =
+  public final LoggedTunableNumber THETA_STD_DEV_THRESHOLD_2 =
       new LoggedTunableNumber("Vision/thetaStdDevThreshold 2 meter", 0.01);
-  public final LoggedTunableNumber thetaStdDevThreshold_3 =
+  public final LoggedTunableNumber THETA_STD_DEV_THRESHOLD_3 =
       new LoggedTunableNumber("Vision/thetaStdDevThreshold 3 meter", 0.01);
-  public final LoggedTunableNumber thetaStdDevThreshold_4 =
+  public final LoggedTunableNumber THETA_STD_DEV_THRESHOLD_4 =
       new LoggedTunableNumber("Vision/thetaStdDevThreshold 4 meter", 0.01);
-  public final LoggedTunableNumber thetaStdDevThreshold_5 =
+  public final LoggedTunableNumber THETA_STD_DEV_THRESHOLD_5 =
       new LoggedTunableNumber("Vision/thetaStdDevThreshold 5 meter", 7);
-  public final LoggedTunableNumber thetaStdDevThreshold_6 =
+  public final LoggedTunableNumber THETA_STD_DEV_THRESHOLD_6 =
       new LoggedTunableNumber("Vision/thetaStdDevThreshold 6 meter", 10);
 
-  public final LoggedTunableNumber multitagDistrubution =
+  public final LoggedTunableNumber MULTITAG_DISTRIBUTION =
       new LoggedTunableNumber("Vision/multitagDistrubution", 0.65);
 
   AprilTagFieldLayout aprilTagFieldLayout;
@@ -141,7 +141,7 @@ public class VisionSubsystem extends SubsystemBase {
     //                thetaStdDevThreshold_6.get()
     //              },
     //              2);
-    //      stdDevScalarShooting = multitagDistrubution.get();
+    //      stdDevScalarShooting = MULTITAG_DISTRIBUTION.get();
     //    }
 
     double singleTagAdjustment = 1.0;
@@ -199,7 +199,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         robotPose =
             cameraPose
-                .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
+                .transformBy(GeomUtil.pose3dToTransform3d(CAMERA_POSES[instanceIndex]).inverse())
                 .toPose2d();
 
         // Populate array of tag poses with tags used
@@ -222,11 +222,11 @@ public class VisionSubsystem extends SubsystemBase {
         Pose3d cameraPose1 = tagPos.transformBy(target.getAlternateCameraToTarget().inverse());
         Pose2d robotPose0 =
             cameraPose0
-                .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
+                .transformBy(GeomUtil.pose3dToTransform3d(CAMERA_POSES[instanceIndex]).inverse())
                 .toPose2d();
         Pose2d robotPose1 =
             cameraPose1
-                .transformBy(GeomUtil.pose3dToTransform3d(cameraPoses[instanceIndex]).inverse())
+                .transformBy(GeomUtil.pose3dToTransform3d(CAMERA_POSES[instanceIndex]).inverse())
                 .toPose2d();
 
         double projectionError = target.getPoseAmbiguity();
@@ -255,10 +255,10 @@ public class VisionSubsystem extends SubsystemBase {
       }
 
       // Move on to next camera if robot pose is off the field
-      if (robotPose.getX() < -fieldBorderMargin
-          || robotPose.getX() > aprilTagFieldLayout.getFieldLength() + fieldBorderMargin
-          || robotPose.getY() < -fieldBorderMargin
-          || robotPose.getY() > aprilTagFieldLayout.getFieldWidth() + fieldBorderMargin) {
+      if (robotPose.getX() < -FIELD_BORDER_MARGIN
+          || robotPose.getX() > aprilTagFieldLayout.getFieldLength() + FIELD_BORDER_MARGIN
+          || robotPose.getY() < -FIELD_BORDER_MARGIN
+          || robotPose.getY() > aprilTagFieldLayout.getFieldWidth() + FIELD_BORDER_MARGIN) {
         continue;
       }
 
@@ -275,8 +275,8 @@ public class VisionSubsystem extends SubsystemBase {
         xyStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
         thetaStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
       } else {
-        xyStdDev = xyStdDevModel.predict(avgDistance);
-        thetaStdDev = thetaStdDevModel.predict(avgDistance);
+        xyStdDev = XY_STD_DEV_MODEL.predict(avgDistance);
+        thetaStdDev = THETA_STD_DEV_MODEL.predict(avgDistance);
       }
 
       if (shouldUseMultiTag) {
@@ -285,18 +285,18 @@ public class VisionSubsystem extends SubsystemBase {
                 robotPose,
                 timestamp,
                 VecBuilder.fill(
-                    stdDevScalarShooting * thetaStdDevCoefficientShooting * xyStdDev,
-                    stdDevScalarShooting * thetaStdDevCoefficientShooting * xyStdDev,
-                    stdDevScalarShooting * thetaStdDevCoefficientShooting * thetaStdDev)));
+                    STD_DEV_SCALAR_SHOOTING * THETA_STD_DEV_COEFFICIENT_SHOOTING * xyStdDev,
+                    STD_DEV_SCALAR_SHOOTING * THETA_STD_DEV_COEFFICIENT_SHOOTING * xyStdDev,
+                    STD_DEV_SCALAR_SHOOTING * THETA_STD_DEV_COEFFICIENT_SHOOTING * thetaStdDev)));
       } else {
         visionUpdates.add(
             new TimestampedVisionUpdate(
                 robotPose,
                 timestamp,
                 VecBuilder.fill(
-                    singleTagAdjustment * xyStdDev * stdDevScalarShooting,
-                    singleTagAdjustment * xyStdDev * stdDevScalarShooting,
-                    singleTagAdjustment * thetaStdDev * stdDevScalarShooting)));
+                    singleTagAdjustment * xyStdDev * STD_DEV_SCALAR_SHOOTING,
+                    singleTagAdjustment * xyStdDev * STD_DEV_SCALAR_SHOOTING,
+                    singleTagAdjustment * thetaStdDev * STD_DEV_SCALAR_SHOOTING)));
 
         Logger.recordOutput("VisionData/" + instanceIndex, robotPose);
         Logger.recordOutput("Photon/Tags Used " + instanceIndex, tagPose3ds.size());
