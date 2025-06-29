@@ -20,9 +20,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.*;
 
-// Message from aryan: This is generated using this link:
-// https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/tuner-swerve/index.html
-
+// Generated using https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/tuner-swerve/index.html
 public class TunerConstants {
   // Both sets of gains need to be tuned to your individual robot.
 

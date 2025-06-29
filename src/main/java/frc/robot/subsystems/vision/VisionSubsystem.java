@@ -28,16 +28,6 @@ public class VisionSubsystem extends SubsystemBase {
 
   private final PhotonCamera[] cameras;
   /* For shooting vs. path following in auto */
-  //  private double stdDevScalarShooting = 0.65;
-
-  //  private PolynomialRegression xyStdDevModel =
-  //      new PolynomialRegression(
-  //          new double[] {1, 2, 3, 4, 5, 6}, new double[] {0.01, 0.01, 0.01, 0.01, 7, 10}, 2);
-  //  private PolynomialRegression thetaStdDevModel =
-  //      new PolynomialRegression(
-  //          new double[] {1, 2, 3, 4, 5, 6}, new double[] {0.01, 0.01, 0.01, 0.01, 7, 10}, 2);
-
-  /* For shooting vs. path following in auto */
   private static final double STD_DEV_SCALAR_SHOOTING = 1.6;
   private static final double THETA_STD_DEV_COEFFICIENT_SHOOTING = 0.075;
   private static final PolynomialRegression XY_STD_DEV_MODEL =
@@ -114,35 +104,6 @@ public class VisionSubsystem extends SubsystemBase {
   public void periodic() {
     Pose2d currentPose = poseSupplier.get();
     visionUpdates = new ArrayList<>();
-    //
-    //    if (Constants.TUNING_MODE) {
-    //      xyStdDevModel =
-    //          new PolynomialRegression(
-    //              new double[] {1, 2, 3, 4, 5, 6},
-    //              new double[] {
-    //                xyStdDevThreshold_1.get(),
-    //                xyStdDevThreshold_2.get(),
-    //                xyStdDevThreshold_3.get(),
-    //                xyStdDevThreshold_4.get(),
-    //                xyStdDevThreshold_5.get(),
-    //                xyStdDevThreshold_6.get()
-    //              },
-    //              2);
-    //
-    //      thetaStdDevModel =
-    //          new PolynomialRegression(
-    //              new double[] {1, 2, 3, 4, 5, 6},
-    //              new double[] {
-    //                thetaStdDevThreshold_1.get(),
-    //                thetaStdDevThreshold_2.get(),
-    //                thetaStdDevThreshold_3.get(),
-    //                thetaStdDevThreshold_4.get(),
-    //                thetaStdDevThreshold_5.get(),
-    //                thetaStdDevThreshold_6.get()
-    //              },
-    //              2);
-    //      stdDevScalarShooting = MULTITAG_DISTRIBUTION.get();
-    //    }
 
     double singleTagAdjustment = 1.0;
     if (Constants.TUNING_MODE) SingleTagAdjustment.updateLoggedTagAdjustments();
@@ -159,16 +120,6 @@ public class VisionSubsystem extends SubsystemBase {
       PhotonPipelineResult unprocessedResult =
           unprocessedResults.get(unprocessedResults.size() - 1);
 
-      // if (unprocessedResults.size() > 2) {
-      //   unprocessedResults =
-      //       unprocessedResults.subList(unprocessedResults.size() - 2,
-      // unprocessedResults.size());
-      // }
-
-      // Logger.recordOutput(
-      //     "Photon/Camera " + instanceIndex + "ResultsLength", unprocessedResults.size());
-
-      // for (PhotonPipelineResult unprocessedResult : unprocessedResults) {
       Logger.recordOutput(
           "Photon/Camera " + instanceIndex + " Has Targets", unprocessedResult.hasTargets());
       Logger.recordOutput(

@@ -166,12 +166,7 @@ public class DriveCommands {
             }),
 
         // Allow modules to orient
-        Commands.run(
-                () -> {
-                  drive.runCharacterization(0.0);
-                },
-                drive)
-            .withTimeout(FF_START_DELAY),
+        Commands.run(() -> drive.runCharacterization(0.0), drive).withTimeout(FF_START_DELAY),
 
         // Start timer
         Commands.runOnce(timer::restart),
@@ -314,9 +309,6 @@ public class DriveCommands {
                     && Math.abs(targetTranslation.getY() - drive.getPose().getY()) < 0.07
                     && Math.abs(targetRotation.minus(drive.getRotation()).getRadians())
                         < Math.toRadians(5));
-    // Timeout to prevent infinite looping if the target is unreachable (adjust
-    // as
-    // needed)
   }
 
   public static Command goToTransformWithPathFinder(
@@ -327,9 +319,6 @@ public class DriveCommands {
         Constants.PATH_CONSTRAINTS,
         0.0 // Goal end velocity in meters/sec
         );
-    // .andThen(
-    //     goToTransform(
-    //         drive, targetTransform.plus(new Transform2d(0.50, -0.23, new Rotation2d()))));
   }
 
   public static Command
@@ -361,10 +350,7 @@ public class DriveCommands {
 
             // Turn in place, accelerating up to full speed
             Commands.run(
-                () -> {
-                  double speed = limiter.calculate(WHEEL_RADIUS_MAX_VELOCITY);
-                  drive.runVelocity(new ChassisSpeeds(0.0, 0.0, speed));
-                },
+                () -> drive.runVelocity(new ChassisSpeeds(0.0, 0.0, limiter.calculate(WHEEL_RADIUS_MAX_VELOCITY))),
                 drive)),
 
         // Measurement sequence

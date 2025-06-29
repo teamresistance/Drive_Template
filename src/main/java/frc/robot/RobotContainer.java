@@ -38,12 +38,12 @@ public class RobotContainer {
   private final CommandXboxController driver = new CommandXboxController(0);
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
-  public VisionSubsystem aprilTagVision;
+  private VisionSubsystem vision;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     drive = configureDrive();
-    aprilTagVision = configureAprilTagVision();
+    vision = configureAprilTagVision();
     configureNamedCommands();
 
     autoChooser = configureAutos();
@@ -57,31 +57,31 @@ public class RobotContainer {
 
   private LoggedDashboardChooser<Command> configureAutos() {
     // Set up auto routines
-    LoggedDashboardChooser<Command> autoChooser =
+    LoggedDashboardChooser<Command> chooser =
         new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
-    autoChooser.addOption(
+    chooser.addOption(
         "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
+    chooser.addOption(
         "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
+    chooser.addOption(
         "Drive SysId (Quasistatic Forward)",
         drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
+    chooser.addOption(
         "Drive SysId (Quasistatic Reverse)",
         drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
+    chooser.addOption(
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
+    chooser.addOption(
         "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    return autoChooser;
+    return chooser;
   }
 
   private VisionSubsystem configureAprilTagVision() {
     try {
-      aprilTagVision =
+      vision =
           new VisionSubsystem(
               frontLeftCamera,
               frontRightCamera,
@@ -96,8 +96,8 @@ public class RobotContainer {
 
       System.err.println("Failed to initialize vision system: " + e.getMessage());
     }
-    aprilTagVision.setDataInterfaces(drive::getPose, drive::addAutoVisionMeasurement);
-    return aprilTagVision;
+    vision.setDataInterfaces(drive::getPose, drive::addAutoVisionMeasurement);
+    return vision;
   }
 
   private SwerveDriveSubsystem configureDrive() {
