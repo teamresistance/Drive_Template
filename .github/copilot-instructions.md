@@ -18,7 +18,7 @@
 
 - `frc.robot` - Main robot code (Robot.java, RobotContainer.java, Constants.java, etc.)
 - `frc.robot.subsystems.drive` - Swerve drive subsystem with IO abstraction
-- `frc.robot.subsystems.vision` - Vision processing subsystem 
+- `frc.robot.subsystems.vision` - Vision processing subsystem
 - `frc.robot.commands` - Robot commands (DriveCommands.java)
 - `frc.robot.util` - Utility classes (GeomUtil, LoggedTunableNumber, PhoenixUtil, etc.)
 - `frc.robot.generated` - Auto-generated files (TunerConstants.java from Phoenix Tuner X)

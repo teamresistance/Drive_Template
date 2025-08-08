@@ -83,6 +83,12 @@ public class VisionSubsystem extends SubsystemBase {
   private List<TimestampedVisionUpdate> visionUpdates;
   private Supplier<Pose2d> poseSupplier = Pose2d::new;
 
+  /**
+   * Creates a new VisionSubsystem with the specified cameras.
+   *
+   * @param cameras The PhotonVision cameras to use for AprilTag detection
+   * @throws IOException If the field layout cannot be loaded
+   */
   public VisionSubsystem(PhotonCamera... cameras) throws IOException {
     this.cameras = cameras;
     try {
@@ -93,6 +99,12 @@ public class VisionSubsystem extends SubsystemBase {
     }
   }
 
+  /**
+   * Sets the data interfaces for pose estimation integration.
+   *
+   * @param poseSupplier Supplier that provides the current robot pose
+   * @param visionConsumer Consumer that accepts vision measurement updates
+   */
   public void setDataInterfaces(
       Supplier<Pose2d> poseSupplier, Consumer<List<TimestampedVisionUpdate>> visionConsumer) {
     this.poseSupplier = poseSupplier;
@@ -115,7 +127,9 @@ public class VisionSubsystem extends SubsystemBase {
       List<Pose3d> tagPose3ds = new ArrayList<>();
 
       List<PhotonPipelineResult> unprocessedResults = cameras[instanceIndex].getAllUnreadResults();
-      if (unprocessedResults.isEmpty()) return;
+
+      if (unprocessedResults.isEmpty()) continue;
+      
       PhotonPipelineResult unprocessedResult =
           unprocessedResults.get(unprocessedResults.size() - 1);
 
@@ -164,7 +178,7 @@ public class VisionSubsystem extends SubsystemBase {
         // If not using multitag, disambiugate and then use
         PhotonTrackedTarget target = unprocessedResult.targets.get(0);
 
-        if (aprilTagFieldLayout.getTagPose(target.getFiducialId()).isPresent()) {
+        if (aprilTagFieldLayout.getTagPose(target.getFiducialId()).isEmpty()) {
           continue;
         }
 

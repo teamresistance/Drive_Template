@@ -80,6 +80,11 @@ public class RobotContainer {
     return chooser;
   }
 
+  /**
+   * Configures the AprilTag vision system with PhotonVision cameras.
+   *
+   * @return The configured VisionSubsystem, or null if initialization fails
+   */
   private VisionSubsystem configureAprilTagVision() {
     try {
       vision =
@@ -89,6 +94,7 @@ public class RobotContainer {
               backRightCamera,
               frontCenterCamera,
               backLeftCamera);
+      vision.setDataInterfaces(drive::getPose, drive::addAutoVisionMeasurement);
 
     } catch (IOException e) {
       if (cameraFailureAlert != null) {
@@ -96,8 +102,8 @@ public class RobotContainer {
       }
 
       Logger.recordOutput("Vision/FieldLayoutLoadError", e.getMessage());
+      return null; // Return null on failure for proper error handling
     }
-    vision.setDataInterfaces(drive::getPose, drive::addAutoVisionMeasurement);
     return vision;
   }
 
@@ -154,6 +160,12 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.get();
+    Command autoCommand = autoChooser.get();
+    if (autoCommand == null) {
+      Logger.recordOutput("Auto/NoCommandSelected", true);
+      return Commands.none(); // Return empty command if no auto selected
+    }
+    
+    return autoCommand;
   }
 }
