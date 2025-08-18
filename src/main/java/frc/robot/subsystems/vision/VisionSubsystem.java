@@ -129,7 +129,7 @@ public class VisionSubsystem extends SubsystemBase {
       List<PhotonPipelineResult> unprocessedResults = cameras[instanceIndex].getAllUnreadResults();
 
       if (unprocessedResults.isEmpty()) continue;
-      
+
       PhotonPipelineResult unprocessedResult =
           unprocessedResults.get(unprocessedResults.size() - 1);
 

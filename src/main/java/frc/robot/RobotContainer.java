@@ -165,7 +165,7 @@ public class RobotContainer {
       Logger.recordOutput("Auto/NoCommandSelected", true);
       return Commands.none(); // Return empty command if no auto selected
     }
-    
+
     return autoCommand;
   }
 }
