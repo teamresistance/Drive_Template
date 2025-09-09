@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 
 public class CameraPoses {
-  public static final Pose3d[] cameraPoses =
+  public static final Pose3d[] poses =
       new Pose3d[] {
         // Front Left
         new Pose3d(

@@ -93,7 +93,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         new SwerveModulePosition(),
         new SwerveModulePosition()
       };
-  public boolean testingmode = false;
+  public final boolean testingmode = false;
   private Rotation2d rawGyroRotation = new Rotation2d();
   private final SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
