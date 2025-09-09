@@ -23,8 +23,11 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionSubsystem extends SubsystemBase {
+
+  private static String LOGGING_KEY_PREFIX = "Photon/Camera ";
+
   private static final double FIELD_BORDER_MARGIN = 0.5;
-  private static final Pose3d[] CAMERA_POSES = CameraPoses.cameraPoses;
+  private static final Pose3d[] CAMERA_POSES = CameraPoses.poses;
 
   private final PhotonCamera[] cameras;
   /* For shooting vs. path following in auto */
@@ -134,9 +137,9 @@ public class VisionSubsystem extends SubsystemBase {
           unprocessedResults.get(unprocessedResults.size() - 1);
 
       Logger.recordOutput(
-          "Photon/Camera " + instanceIndex + " Has Targets", unprocessedResult.hasTargets());
+          LOGGING_KEY_PREFIX + instanceIndex + " Has Targets", unprocessedResult.hasTargets());
       Logger.recordOutput(
-          "Photon/Camera " + instanceIndex + "LatencyMS",
+          LOGGING_KEY_PREFIX + instanceIndex + "LatencyMS",
           unprocessedResult.metadata.getLatencyMillis());
 
       Logger.recordOutput(
@@ -151,7 +154,7 @@ public class VisionSubsystem extends SubsystemBase {
       }
 
       double timestamp = unprocessedResult.getTimestampSeconds();
-      Logger.recordOutput("Photon/Camera " + instanceIndex + " Timestamp", timestamp);
+      Logger.recordOutput(LOGGING_KEY_PREFIX + instanceIndex + " Timestamp", timestamp);
 
       boolean shouldUseMultiTag = unprocessedResult.getMultiTagResult().isPresent();
 
@@ -198,11 +201,10 @@ public class VisionSubsystem extends SubsystemBase {
         double projectionError = target.getPoseAmbiguity();
 
         // Select a pose using projection error and current rotation
-        if (projectionError < 0.15) {
-          cameraPose = cameraPose0;
-          robotPose = robotPose0;
-        } else if (Math.abs(robotPose0.getRotation().minus(currentPose.getRotation()).getRadians())
-            < Math.abs(robotPose1.getRotation().minus(currentPose.getRotation()).getRadians())) {
+        if (projectionError < 0.15
+            || (Math.abs(robotPose0.getRotation().minus(currentPose.getRotation()).getRadians())
+                < Math.abs(
+                    robotPose1.getRotation().minus(currentPose.getRotation()).getRadians()))) {
           cameraPose = cameraPose0;
           robotPose = robotPose0;
         } else {
