@@ -11,6 +11,14 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+sourceSets {
+    test {
+        java {
+            srcDirs = ['test/java']
+        }
+    }
+}
+
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
@@ -93,6 +101,8 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:6.0.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.mockito:mockito-core:5.+'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.+'
 
     implementation "gov.nist.math:jama:1.0.3"
 
