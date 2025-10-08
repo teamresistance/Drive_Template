@@ -20,8 +20,8 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     permissions:
-      contents: read
       checks: write
+      contents: read
       pull-requests: write
 
     steps:

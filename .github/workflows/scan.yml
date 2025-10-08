@@ -3,12 +3,16 @@ name: "Scan"
 on:
   push:
     branches:
-      - main
+      - "main"
   pull_request:
   schedule:
     - cron: "0 1 * * 1"
 
-permissions: read-all
+permissions: {}
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
 
 env:
   JAVA_VERSION: 17
@@ -18,7 +22,10 @@ jobs:
     name: Sonar scan
     runs-on: ubuntu-latest
     permissions:
+      checks: write
+      contents: read
       pull-requests: write
+      security-events: write
 
     steps:
       - name: Check out repo
@@ -55,6 +62,9 @@ jobs:
     name: CodeQL scan
     runs-on: ubuntu-latest
     permissions:
+      checks: write
+      contents: read
+      pull-requests: write
       security-events: write
 
     strategy:
