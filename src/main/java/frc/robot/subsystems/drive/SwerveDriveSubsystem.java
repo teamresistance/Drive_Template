@@ -160,14 +160,11 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   }
 
   public Transform2d getVelocity() {
-    boolean isFlipped =
-        DriverStation.getAlliance().isPresent()
-            && DriverStation.getAlliance().get() == DriverStation.Alliance.Red;
     // convert to field relative
     ChassisSpeeds chassisSpeeds =
         ChassisSpeeds.fromRobotRelativeSpeeds(
             kinematics.toChassisSpeeds(getModuleStates()),
-            isFlipped ? getRotation().plus(new Rotation2d(Math.PI)) : getRotation());
+            getRotation());
     return new Transform2d(
         chassisSpeeds.vxMetersPerSecond,
         chassisSpeeds.vyMetersPerSecond,
