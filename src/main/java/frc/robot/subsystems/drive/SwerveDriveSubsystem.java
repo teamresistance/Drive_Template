@@ -163,8 +163,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     // convert to field relative
     ChassisSpeeds chassisSpeeds =
         ChassisSpeeds.fromRobotRelativeSpeeds(
-            kinematics.toChassisSpeeds(getModuleStates()),
-            getRotation());
+            kinematics.toChassisSpeeds(getModuleStates()), getRotation());
     return new Transform2d(
         chassisSpeeds.vxMetersPerSecond,
         chassisSpeeds.vyMetersPerSecond,
