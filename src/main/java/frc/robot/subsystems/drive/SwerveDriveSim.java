@@ -48,12 +48,7 @@ public class SwerveDriveSim implements SwerveDrive {
         DriveTrainSimulationConfig.Default()
             .withGyro(COTS.ofPigeon2())
             .withSwerveModule(
-                COTS.ofSwerveX2(
-                    DCMotor.getKrakenX60(1),
-                    DCMotor.getKrakenX60(1),
-                    COTS.WHEELS.DEFAULT_NEOPRENE_TREAD.cof,
-                    2,
-                    11))
+                COTS.ofSwerveX2(DCMotor.getKrakenX60(1), DCMotor.getKrakenX60(1), WHEEL_COF, 2, 11))
             .withTrackLengthTrackWidth(Inches.of(22), Inches.of(22))
             .withBumperSize(Inches.of(34), Inches.of(34))
             .withRobotMass(Pounds.of(125))
