@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
+import frc.robot.subsystems.drive.SwerveDrive;
 import frc.robot.subsystems.drive.SwerveDriveSubsystem;
 import frc.robot.util.GeomUtil;
 import java.util.LinkedList;
@@ -58,7 +59,7 @@ public class DriveCommands {
    * Field relative drive command using two joysticks (controlling linear and angular velocities).
    */
   public static Command joystickDrive(
-      SwerveDriveSubsystem drive,
+      SwerveDrive drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier) {
@@ -99,7 +100,7 @@ public class DriveCommands {
    * absolute rotation with a joystick.
    */
   public static Command joystickDriveAtAngle(
-      SwerveDriveSubsystem drive,
+      SwerveDrive drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       Supplier<Rotation2d> rotationSupplier) {
@@ -152,7 +153,7 @@ public class DriveCommands {
    *
    * <p>This command should only be used in voltage control mode.
    */
-  public static Command feedforwardCharacterization(SwerveDriveSubsystem drive) {
+  public static Command feedforwardCharacterization(SwerveDrive drive) {
     List<Double> velocitySamples = new LinkedList<>();
     List<Double> voltageSamples = new LinkedList<>();
     Timer timer = new Timer();
@@ -208,7 +209,7 @@ public class DriveCommands {
    * Command that drives the robot to a target Transform2d using a PID controller for both the X and
    * Y positions.
    */
-  public static Command goToTransform(SwerveDriveSubsystem drive, Transform2d targetTransform) {
+  public static Command goToTransform(SwerveDrive drive, Transform2d targetTransform) {
     // PID controllers for X and Y positions
     ProfiledPIDController pidX =
         new ProfiledPIDController(
@@ -245,7 +246,7 @@ public class DriveCommands {
 
     return Commands.run(
             () -> {
-              if (drive.testingmode) return;
+              if (Constants.TEST_MODE) return;
               // Get current robot position
               Pose2d currentPose = drive.getPose();
 
@@ -312,8 +313,8 @@ public class DriveCommands {
   }
 
   public static Command goToTransformWithPathFinder(
-      SwerveDriveSubsystem drive, Transform2d targetTransform) {
-    if (drive.testingmode) return new InstantCommand(() -> {});
+      SwerveDrive drive, Transform2d targetTransform) {
+    if (Constants.TEST_MODE) return new InstantCommand(() -> {});
     return AutoBuilder.pathfindToPose(
         GeomUtil.transformToPose(targetTransform),
         Constants.PATH_CONSTRAINTS,
@@ -323,9 +324,9 @@ public class DriveCommands {
 
   public static Command
       goToTransformWithPathFinderPlusOffset( // Go to transform, then move to another offset
-      SwerveDriveSubsystem drive, Transform2d targetTransform, Transform2d offset) {
+      SwerveDrive drive, Transform2d targetTransform, Transform2d offset) {
 
-    if (drive.testingmode) return new InstantCommand(() -> {});
+    if (Constants.TEST_MODE) return new InstantCommand(() -> {});
     return AutoBuilder.pathfindToPose(
             GeomUtil.transformToPose(targetTransform),
             Constants.PATH_CONSTRAINTS,
@@ -335,7 +336,7 @@ public class DriveCommands {
   }
 
   /** Measures the robot's wheel radius by spinning in a circle. */
-  public static Command wheelRadiusCharacterization(SwerveDriveSubsystem drive) {
+  public static Command wheelRadiusCharacterization(SwerveDrive drive) {
     SlewRateLimiter limiter = new SlewRateLimiter(WHEEL_RADIUS_RAMP_RATE);
     WheelRadiusCharacterizationState state = new WheelRadiusCharacterizationState();
 

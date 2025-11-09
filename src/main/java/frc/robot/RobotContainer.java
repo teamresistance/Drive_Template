@@ -34,7 +34,7 @@ public class RobotContainer {
   public final PhotonCamera frontCenterCamera = new PhotonCamera("front-center");
   private final Alert cameraFailureAlert;
   // Subsystems
-  private final SwerveDriveSubsystem drive;
+  private final SwerveDrive drive;
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
   // Dashboard inputs
@@ -107,7 +107,7 @@ public class RobotContainer {
     return vision;
   }
 
-  private SwerveDriveSubsystem configureDrive() {
+  private SwerveDrive configureDrive() {
     // Real robot, instantiate hardware IO implementations
     // Sim robot, instantiate physics sim IO implementations
     // Replayed robot, disable IO implementations
@@ -121,13 +121,8 @@ public class RobotContainer {
               new ModuleIOTalonFX(TunerConstants.BackLeft),
               new ModuleIOTalonFX(TunerConstants.BackRight));
       case SIM ->
-          // Sim robot, instantiate physics sim IO implementations
-          new SwerveDriveSubsystem(
-              new GyroIO() {},
-              new ModuleIOSim(TunerConstants.FrontLeft),
-              new ModuleIOSim(TunerConstants.FrontRight),
-              new ModuleIOSim(TunerConstants.BackLeft),
-              new ModuleIOSim(TunerConstants.BackRight));
+          // Sim robot, instantiate MapleSim drive simulation
+          new SwerveDriveSim();
       default ->
           // Replayed robot, disable IO implementations
           new SwerveDriveSubsystem(

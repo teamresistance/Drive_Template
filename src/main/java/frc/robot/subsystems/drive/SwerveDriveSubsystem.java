@@ -29,7 +29,6 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
@@ -42,7 +41,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class SwerveDriveSubsystem extends SubsystemBase {
+public class SwerveDriveSubsystem implements SwerveDrive {
 
   public static final double DRIVE_BASE_RADIUS =
       Math.max(
@@ -65,7 +64,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
           * (Math.pow(TunerConstants.FrontLeft.LocationX * 2, 2)
               + Math.pow(TunerConstants.FrontLeft.LocationY * 2, 2));
   private static final double WHEEL_COF = 1.2;
-  private static final RobotConfig PP_CONFIG =
+  static final RobotConfig PP_CONFIG =
       new RobotConfig(
           ROBOT_MASS_KG,
           ROBOT_MOI,
@@ -84,7 +83,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
   private final SysIdRoutine sysId;
   private final Alert gyroDisconnectedAlert =
       new Alert("Disconnected gyro, using kinematics as fallback.", AlertType.kError);
-  private final SwerveDriveKinematics kinematics =
+  static final SwerveDriveKinematics kinematics =
       new SwerveDriveKinematics(getModuleTranslations());
   private final SwerveModulePosition[] lastModulePositions = // For delta tracking
       new SwerveModulePosition[] {
@@ -93,7 +92,6 @@ public class SwerveDriveSubsystem extends SubsystemBase {
         new SwerveModulePosition(),
         new SwerveModulePosition()
       };
-  public final boolean testingmode = false;
   private Rotation2d rawGyroRotation = new Rotation2d();
   private final SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
@@ -163,8 +161,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     // convert to field relative
     ChassisSpeeds chassisSpeeds =
         ChassisSpeeds.fromRobotRelativeSpeeds(
-            kinematics.toChassisSpeeds(getModuleStates()),
-            getRotation());
+            kinematics.toChassisSpeeds(getModuleStates()), getRotation());
     return new Transform2d(
         chassisSpeeds.vxMetersPerSecond,
         chassisSpeeds.vyMetersPerSecond,
@@ -245,7 +242,7 @@ public class SwerveDriveSubsystem extends SubsystemBase {
     Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
     Logger.recordOutput("SwerveChassisSpeeds/Setpoints", discreteSpeeds);
 
-    if (!testingmode) {
+    if (!Constants.TEST_MODE) {
       // Send setpoints to modules
       for (int i = 0; i < 4; i++) {
         modules[i].runSetpoint(setpointStates[i]);
