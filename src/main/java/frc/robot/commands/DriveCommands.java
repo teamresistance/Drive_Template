@@ -2,7 +2,6 @@ package frc.robot.commands;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.*;
-import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -341,18 +340,14 @@ public class DriveCommands {
       SwerveDrive drive,
       Supplier<Pose2d> startSupplier,
       Supplier<Pose2d> endSupplier,
-      Supplier<Pose2d>... controls) {
+      Supplier<Pose2d[]> controls) {
 
     Pose2d start = startSupplier.get();
     Pose2d end = endSupplier.get();
     List<Translation2d> pts = new ArrayList<>();
     pts.add(start.getTranslation());
-    if (controls != null) {
-      for (Supplier<Pose2d> sup : controls) {
-        if (sup == null) continue;
-        Pose2d p = AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPose(sup.get()) : sup.get();
-        if (p != null) pts.add(p.getTranslation());
-      }
+    for (Pose2d pose : controls.get()) {
+      pts.add(pose.getTranslation());
     }
     pts.add(end.getTranslation());
 
