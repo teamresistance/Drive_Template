@@ -144,20 +144,8 @@ public class RobotContainer {
         DriveCommands.joystickDrive(
             drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
-    //     Switch to X pattern when X button is pressed
+    // Switch to X pattern when X button is pressed
     driver.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-    driver
-        .y()
-        .whileTrue(
-            DriveCommands.goToPathAndFollowFromPoses(
-                drive,
-                new Pose2d(7, 1, new Rotation2d()),
-                new Pose2d(9, 2, new Rotation2d()),
-                new Pose2d(13, 1, new Rotation2d()),
-                new Pose2d(15, 1, new Rotation2d(1)),
-                new Pose2d(16, 6, new Rotation2d(2)),
-                new Pose2d(7, 6, new Rotation2d(2)),
-                new Pose2d(7, 1, new Rotation2d())));
   }
 
   /**
