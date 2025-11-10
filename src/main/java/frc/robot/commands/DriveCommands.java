@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
-import frc.robot.subsystems.drive.SwerveDrive;
+import frc.robot.subsystems.drive.SwerveDriveIO;
 import frc.robot.util.GeomUtil;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -61,7 +61,7 @@ public class DriveCommands {
    * Field relative drive command using two joysticks (controlling linear and angular velocities).
    */
   public static Command joystickDrive(
-      SwerveDrive drive,
+      SwerveDriveIO drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier) {
@@ -102,7 +102,7 @@ public class DriveCommands {
    * absolute rotation with a joystick.
    */
   public static Command joystickDriveAtAngle(
-      SwerveDrive drive,
+      SwerveDriveIO drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       Supplier<Rotation2d> rotationSupplier) {
@@ -155,7 +155,7 @@ public class DriveCommands {
    *
    * <p>This command should only be used in voltage control mode.
    */
-  public static Command feedforwardCharacterization(SwerveDrive drive) {
+  public static Command feedforwardCharacterization(SwerveDriveIO drive) {
     List<Double> velocitySamples = new LinkedList<>();
     List<Double> voltageSamples = new LinkedList<>();
     Timer timer = new Timer();
@@ -211,7 +211,7 @@ public class DriveCommands {
    * Command that drives the robot to a target Transform2d using a PID controller for both the X and
    * Y positions.
    */
-  public static Command goToTransform(SwerveDrive drive, Transform2d targetTransform) {
+  public static Command goToTransform(SwerveDriveIO drive, Transform2d targetTransform) {
     // PID controllers for X and Y positions
     ProfiledPIDController pidX =
         new ProfiledPIDController(
@@ -315,7 +315,7 @@ public class DriveCommands {
   }
 
   public static Command goToTransformWithPathFinder(
-      SwerveDrive drive, Transform2d targetTransform) {
+      SwerveDriveIO drive, Transform2d targetTransform) {
     if (Constants.TEST_MODE) return new InstantCommand(() -> {});
     return AutoBuilder.pathfindToPose(
         GeomUtil.transformToPose(targetTransform),
@@ -334,7 +334,7 @@ public class DriveCommands {
    * @param controls Control points
    */
   public static Command followCurve(
-      SwerveDrive drive,
+      SwerveDriveIO drive,
       Supplier<Pose2d> startSupplier,
       Supplier<Pose2d> endSupplier,
       Supplier<Pose2d[]> controls) {
@@ -405,7 +405,7 @@ public class DriveCommands {
    * @param drive The drive subsystem
    * @param pointArraySupplier {@code Pose2d} points to construct a path out of
    */
-  public static Command followPoses(SwerveDrive drive, Supplier<Pose2d[]> pointArraySupplier) {
+  public static Command followPoses(SwerveDriveIO drive, Supplier<Pose2d[]> pointArraySupplier) {
     Pose2d[] points = pointArraySupplier.get();
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(points);
     PathPlannerPath path =
@@ -434,7 +434,7 @@ public class DriveCommands {
    * @param pointArraySupplier {@code Pose2d} points to construct a path out of
    */
   public static Command followPoses(
-      SwerveDrive drive, double transitionVelocity, Supplier<Pose2d[]> pointArraySupplier) {
+      SwerveDriveIO drive, double transitionVelocity, Supplier<Pose2d[]> pointArraySupplier) {
     Pose2d[] points = pointArraySupplier.get();
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(points);
     PathPlannerPath path =
@@ -453,7 +453,7 @@ public class DriveCommands {
   }
 
   /** Measures the robot's wheel radius by spinning in a circle. */
-  public static Command wheelRadiusCharacterization(SwerveDrive drive) {
+  public static Command wheelRadiusCharacterization(SwerveDriveIO drive) {
     SlewRateLimiter limiter = new SlewRateLimiter(WHEEL_RADIUS_RAMP_RATE);
     WheelRadiusCharacterizationState state = new WheelRadiusCharacterizationState();
 
@@ -500,7 +500,7 @@ public class DriveCommands {
                         wheelDelta += Math.abs(positions[i] - state.positions[i]) / 4.0;
                       }
                       double wheelRadius =
-                          (state.gyroDelta * SwerveDrive.DRIVE_BASE_RADIUS) / wheelDelta;
+                          (state.gyroDelta * SwerveDriveIO.DRIVE_BASE_RADIUS) / wheelDelta;
 
                       Logger.recordOutput("Drive/WheelRadius/WheelDelta", wheelDelta);
                       Logger.recordOutput("Drive/WheelRadius/GyroDelta", state.gyroDelta);

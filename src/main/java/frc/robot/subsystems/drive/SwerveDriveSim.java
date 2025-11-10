@@ -35,7 +35,7 @@ import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.littletonrobotics.junction.Logger;
 
-public class SwerveDriveSim implements SwerveDrive {
+public class SwerveDriveSim implements SwerveDriveIO {
 
   final DriveTrainSimulationConfig simulationConfig;
   final SelfControlledSwerveDriveSimulation driveSimulaton;
@@ -85,7 +85,7 @@ public class SwerveDriveSim implements SwerveDrive {
                   activePath.get(0),
                   activePath.stream()
                       .skip(1)
-                      .limit(activePath.size() - 2)
+                      .limit(activePath.size() - (long) 2)
                       .map(Pose2d::getTranslation)
                       .toList(),
                   activePath.get(activePath.size() - 1),
@@ -98,7 +98,7 @@ public class SwerveDriveSim implements SwerveDrive {
   }
 
   private ChassisSpeeds getChassisSpeeds() {
-    return SwerveDrive.kinematics.toChassisSpeeds(driveSimulaton.getMeasuredStates());
+    return SwerveDriveIO.kinematics.toChassisSpeeds(driveSimulaton.getMeasuredStates());
   }
 
   @Override

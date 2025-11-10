@@ -31,7 +31,7 @@ public class RobotContainer {
   public final PhotonCamera frontCenterCamera = new PhotonCamera("front-center");
   private final Alert cameraFailureAlert;
   // Subsystems
-  private final SwerveDrive drive;
+  private final SwerveDriveIO drive;
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
   // Dashboard inputs
@@ -104,7 +104,7 @@ public class RobotContainer {
     return vision;
   }
 
-  private SwerveDrive configureDrive() {
+  private SwerveDriveIO configureDrive() {
     // Real robot, instantiate hardware IO implementations
     // Sim robot, instantiate physics sim IO implementations
     // Replayed robot, disable IO implementations

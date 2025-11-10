@@ -34,7 +34,7 @@ import java.util.List;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class SwerveDriveSubsystem implements SwerveDrive {
+public class SwerveDriveSubsystem implements SwerveDriveIO {
 
   private final SysIdRoutine sysId;
   private final GyroIO gyroIO;

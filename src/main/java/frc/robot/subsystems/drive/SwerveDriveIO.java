@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public interface SwerveDrive extends Subsystem {
+public interface SwerveDriveIO extends Subsystem {
 
   // Drive Constants
 
