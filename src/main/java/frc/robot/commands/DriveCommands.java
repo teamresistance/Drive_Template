@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.*;
+import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -20,8 +21,10 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.SwerveDrive;
 import frc.robot.util.GeomUtil;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -323,6 +326,87 @@ public class DriveCommands {
   }
 
   /**
+   * Navigates to the first {@code Pose2d} provided, then begins following a curved path to the end
+   * using the provided control points.
+   *
+   * <p><b>NOTE:</b> The path will be flipped depending on the alliance. DO NOT write paths for the
+   * red side.
+   *
+   * @param drive The drive subsystem
+   * @param startSupplier Pose to start at
+   * @param endSupplier Pose to end at
+   * @param controls Control points
+   */
+  public static Command followCurve(
+      SwerveDrive drive,
+      Supplier<Pose2d> startSupplier,
+      Supplier<Pose2d> endSupplier,
+      Supplier<Pose2d>... controls) {
+
+    Pose2d start = startSupplier.get();
+    Pose2d end = endSupplier.get();
+    List<Translation2d> pts = new ArrayList<>();
+    pts.add(start.getTranslation());
+    if (controls != null) {
+      for (Supplier<Pose2d> sup : controls) {
+        if (sup == null) continue;
+        Pose2d p = AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPose(sup.get()) : sup.get();
+        if (p != null) pts.add(p.getTranslation());
+      }
+    }
+    pts.add(end.getTranslation());
+
+    final int degree = pts.size() - 1;
+    int samples = Math.max(12, degree * 12);
+    BiFunction<List<Translation2d>, Double, Translation2d> evalPoint =
+        (controlPts, t) -> {
+          List<Translation2d> temp = new ArrayList<>(controlPts);
+          int n = temp.size();
+          for (int r = 1; r < n; r++) {
+            for (int i = 0; i < n - r; i++) {
+              Translation2d a = temp.get(i);
+              Translation2d b = temp.get(i + 1);
+              double x = a.getX() * (1 - t) + b.getX() * t;
+              double y = a.getY() * (1 - t) + b.getY() * t;
+              temp.set(i, new Translation2d(x, y));
+            }
+          }
+          return temp.get(0);
+        };
+
+    BiFunction<List<Translation2d>, Double, Translation2d> evalDerivative =
+        (controlPts, t) -> {
+          int n = controlPts.size() - 1;
+          if (n <= 0) return new Translation2d(0.0, 0.0);
+          List<Translation2d> diffs = new ArrayList<>();
+          for (int i = 0; i < n; i++) {
+            Translation2d a = controlPts.get(i);
+            Translation2d b = controlPts.get(i + 1);
+            diffs.add(new Translation2d((b.getX() - a.getX()) * n, (b.getY() - a.getY()) * n));
+          }
+          return evalPoint.apply(diffs, t);
+        };
+
+    Pose2d[] sampled = new Pose2d[samples];
+    for (int i = 0; i < samples; i++) {
+      double t = (double) i / (samples - 1);
+      Translation2d pos = evalPoint.apply(pts, t);
+      Translation2d deriv = evalDerivative.apply(pts, t);
+
+      Rotation2d rot;
+      if (Math.hypot(deriv.getX(), deriv.getY()) < 1e-6) {
+        Translation2d fallback = end.getTranslation().minus(start.getTranslation());
+        rot = new Rotation2d(Math.atan2(fallback.getY(), fallback.getX()));
+      } else {
+        rot = new Rotation2d(Math.atan2(deriv.getY(), deriv.getX()));
+      }
+      sampled[i] = new Pose2d(pos, rot);
+    }
+
+    return followPoses(drive, () -> sampled);
+  }
+
+  /**
    * Navigates to the first {@code Pose2d} provided, then begins following a path constructed from
    * the provided poses.
    *
@@ -330,9 +414,10 @@ public class DriveCommands {
    * red side.
    *
    * @param drive The drive subsystem
-   * @param points {@code Pose2d} points to construct a path out of
+   * @param pointArraySupplier {@code Pose2d} points to construct a path out of
    */
-  public static Command goToPathAndFollowFromPoses(SwerveDrive drive, Pose2d... points) {
+  public static Command followPoses(SwerveDrive drive, Supplier<Pose2d[]> pointArraySupplier) {
+    Pose2d[] points = pointArraySupplier.get();
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(points);
     PathPlannerPath path =
         new PathPlannerPath(
@@ -359,10 +444,11 @@ public class DriveCommands {
    * @param drive The drive subsystem
    * @param transitionVelocity The speed in m/s that should be maintained from the initial pathing
    *     when starting to follow the actual path
-   * @param points {@code Pose2d} points to construct a path out of
+   * @param pointArraySupplier {@code Pose2d} points to construct a path out of
    */
-  public static Command goToPathAndFollowFromPoses(
-      SwerveDrive drive, double transitionVelocity, Pose2d... points) {
+  public static Command followPoses(
+      SwerveDrive drive, double transitionVelocity, Supplier<Pose2d[]> pointArraySupplier) {
+    Pose2d[] points = pointArraySupplier.get();
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(points);
     PathPlannerPath path =
         new PathPlannerPath(
