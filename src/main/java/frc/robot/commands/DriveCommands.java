@@ -328,9 +328,6 @@ public class DriveCommands {
    * Navigates to the first {@code Pose2d} provided, then begins following a curved path to the end
    * using the provided control points.
    *
-   * <p><b>NOTE:</b> The path will be flipped depending on the alliance. DO NOT write paths for the
-   * red side.
-   *
    * @param drive The drive subsystem
    * @param startSupplier Pose to start at
    * @param endSupplier Pose to end at
@@ -405,9 +402,6 @@ public class DriveCommands {
    * Navigates to the first {@code Pose2d} provided, then begins following a path constructed from
    * the provided poses.
    *
-   * <p><b>NOTE:</b> The path will be flipped depending on the alliance. DO NOT write paths for the
-   * red side.
-   *
    * @param drive The drive subsystem
    * @param pointArraySupplier {@code Pose2d} points to construct a path out of
    */
@@ -423,8 +417,9 @@ public class DriveCommands {
                 points[0].getRotation()),
             new GoalEndState(0, points[points.length - 1].getRotation()));
 
+    path.preventFlipping = true;
     return Commands.sequence(
-        AutoBuilder.pathfindToPoseFlipped(
+        AutoBuilder.pathfindToPose(
             points[0], Constants.PATH_CONSTRAINTS, Constants.PATH_CONSTRAINTS.maxVelocity()),
         AutoBuilder.followPath(path));
   }
@@ -432,9 +427,6 @@ public class DriveCommands {
   /**
    * Navigates to the first {@code Pose2d} provided, then begins following a path constructed from
    * the provided poses.
-   *
-   * <p><b>NOTE:</b> The path will be flipped depending on the alliance. DO NOT write paths for the
-   * red side.
    *
    * @param drive The drive subsystem
    * @param transitionVelocity The speed in m/s that should be maintained from the initial pathing
@@ -454,9 +446,9 @@ public class DriveCommands {
                 points[0].getRotation()),
             new GoalEndState(0, points[points.length - 1].getRotation()));
 
+    path.preventFlipping = true;
     return Commands.sequence(
-        AutoBuilder.pathfindToPoseFlipped(
-            points[0], Constants.PATH_CONSTRAINTS, transitionVelocity),
+        AutoBuilder.pathfindToPose(points[0], Constants.PATH_CONSTRAINTS, transitionVelocity),
         AutoBuilder.followPath(path));
   }
 
