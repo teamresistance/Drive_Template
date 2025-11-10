@@ -422,7 +422,7 @@ public class DriveCommands {
                         wheelDelta += Math.abs(positions[i] - state.positions[i]) / 4.0;
                       }
                       double wheelRadius =
-                          (state.gyroDelta * SwerveDriveSubsystem.DRIVE_BASE_RADIUS) / wheelDelta;
+                          (state.gyroDelta * SwerveDrive.DRIVE_BASE_RADIUS) / wheelDelta;
 
                       Logger.recordOutput("Drive/WheelRadius/WheelDelta", wheelDelta);
                       Logger.recordOutput("Drive/WheelRadius/GyroDelta", state.gyroDelta);

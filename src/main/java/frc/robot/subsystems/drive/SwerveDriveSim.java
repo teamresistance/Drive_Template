@@ -1,8 +1,6 @@
 package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
-import static frc.robot.subsystems.drive.SwerveDriveSubsystem.DRIVE_BASE_RADIUS;
-import static frc.robot.subsystems.drive.SwerveDriveSubsystem.PP_CONFIG;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
@@ -79,7 +77,7 @@ public class SwerveDriveSim implements SwerveDrive {
         this);
     Pathfinding.setPathfinder(new LocalADStarAK());
     PathPlannerLogging.setLogActivePathCallback(
-        (activePath) -> {
+        activePath -> {
           Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
           if (activePath.isEmpty()) return;
           Trajectory trajectory =
@@ -96,13 +94,13 @@ public class SwerveDriveSim implements SwerveDrive {
           field2d.getObject("traj").setTrajectory(trajectory);
         });
     PathPlannerLogging.setLogTargetPoseCallback(
-        (targetPose) -> {
-          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose);
-        });
+        targetPose ->
+          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose)
+        );
   }
 
   private ChassisSpeeds getChassisSpeeds() {
-    return SwerveDriveSubsystem.kinematics.toChassisSpeeds(driveSimulaton.getMeasuredStates());
+    return SwerveDrive.kinematics.toChassisSpeeds(driveSimulaton.getMeasuredStates());
   }
 
   @Override
