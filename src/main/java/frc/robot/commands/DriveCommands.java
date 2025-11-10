@@ -335,7 +335,11 @@ public class DriveCommands {
                 transforms[0].getRotation()),
             new GoalEndState(0, transforms[transforms.length - 1].getRotation()));
 
-    return AutoBuilder.followPath(path);
+    return Commands.sequence(
+        AutoBuilder.pathfindToPoseFlipped(
+            transforms[0], Constants.PATH_CONSTRAINTS, Constants.PATH_CONSTRAINTS.maxVelocity()),
+        AutoBuilder.followPath(path));
+    //    return AutoBuilder.followPath(path);
   }
 
   /** Measures the robot's wheel radius by spinning in a circle. */
