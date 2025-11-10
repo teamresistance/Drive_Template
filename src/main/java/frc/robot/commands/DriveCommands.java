@@ -323,7 +323,7 @@ public class DriveCommands {
         );
   }
 
-  public static Command goToPoseWithIntermediates(SwerveDrive drive, Pose2d... transforms) {
+  public static Command goToPathAndFollowFromPoses(SwerveDrive drive, Pose2d... transforms) {
 
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(transforms);
     PathPlannerPath path =

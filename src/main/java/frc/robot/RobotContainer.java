@@ -149,7 +149,7 @@ public class RobotContainer {
     driver
         .y()
         .whileTrue(
-            DriveCommands.goToPoseWithIntermediates(
+            DriveCommands.goToPathAndFollowFromPoses(
                 drive,
                 new Pose2d(7, 1, new Rotation2d()),
                 new Pose2d(9, 2, new Rotation2d()),
