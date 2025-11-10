@@ -324,7 +324,10 @@ public class DriveCommands {
 
   /**
    * Navigates to the first {@code Pose2d} provided, then begins following a path constructed from
-   * the provided poses
+   * the provided poses.
+   *
+   * <p><b>NOTE:</b> The path will be flipped depending on the alliance. DO NOT write paths for the
+   * red side.
    *
    * @param drive The drive subsystem
    * @param points {@code Pose2d} points to construct a path out of
@@ -348,7 +351,10 @@ public class DriveCommands {
 
   /**
    * Navigates to the first {@code Pose2d} provided, then begins following a path constructed from
-   * the provided poses
+   * the provided poses.
+   *
+   * <p><b>NOTE:</b> The path will be flipped depending on the alliance. DO NOT write paths for the
+   * red side.
    *
    * @param drive The drive subsystem
    * @param transitionVelocity The speed in m/s that should be maintained from the initial pathing
