@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.SwerveDrive;
-import frc.robot.subsystems.drive.SwerveDriveSubsystem;
 import frc.robot.util.GeomUtil;
 import java.util.LinkedList;
 import java.util.List;

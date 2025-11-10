@@ -94,9 +94,7 @@ public class SwerveDriveSim implements SwerveDrive {
           field2d.getObject("traj").setTrajectory(trajectory);
         });
     PathPlannerLogging.setLogTargetPoseCallback(
-        targetPose ->
-          Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose)
-        );
+        targetPose -> Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
   }
 
   private ChassisSpeeds getChassisSpeeds() {
