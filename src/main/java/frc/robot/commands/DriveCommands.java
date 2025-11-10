@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -322,17 +323,19 @@ public class DriveCommands {
         );
   }
 
-  public static Command
-      goToTransformWithPathFinderPlusOffset( // Go to transform, then move to another offset
-      SwerveDrive drive, Transform2d targetTransform, Transform2d offset) {
+  public static Command goToPoseWithIntermediates(SwerveDrive drive, Pose2d... transforms) {
 
-    if (Constants.TEST_MODE) return new InstantCommand(() -> {});
-    return AutoBuilder.pathfindToPose(
-            GeomUtil.transformToPose(targetTransform),
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(transforms);
+    PathPlannerPath path =
+        new PathPlannerPath(
+            waypoints,
             Constants.PATH_CONSTRAINTS,
-            0.0 // Goal end velocity in meters/sec
-            )
-        .andThen(goToTransform(drive, targetTransform.plus(offset)));
+            new IdealStartingState(
+                drive.getPose().getTranslation().getDistance(transforms[0].getTranslation()) / 2,
+                transforms[0].getRotation()),
+            new GoalEndState(0, transforms[transforms.length - 1].getRotation()));
+
+    return AutoBuilder.followPath(path);
   }
 
   /** Measures the robot's wheel radius by spinning in a circle. */

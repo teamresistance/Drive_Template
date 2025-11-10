@@ -2,6 +2,8 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
@@ -147,6 +149,17 @@ public class RobotContainer {
 
     //     Switch to X pattern when X button is pressed
     driver.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+
+    driver
+        .y()
+        .whileTrue(
+            DriveCommands.goToPoseWithIntermediates(
+                drive,
+                new Pose2d(6, 2, new Rotation2d()),
+                new Pose2d(7, 7, new Rotation2d()),
+                new Pose2d(9, 1, new Rotation2d()),
+                new Pose2d(15, 2, new Rotation2d()),
+                new Pose2d(15, 7, new Rotation2d())));
   }
 
   /**

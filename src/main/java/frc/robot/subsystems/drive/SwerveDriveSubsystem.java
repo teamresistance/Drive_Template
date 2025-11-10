@@ -21,6 +21,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -39,6 +41,7 @@ public class SwerveDriveSubsystem implements SwerveDrive {
   private Rotation2d rawGyroRotation = new Rotation2d();
   private final SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
+  private final Field2d field2d = new Field2d();
 
   public SwerveDriveSubsystem(
       GyroIO gyroIO,
@@ -128,6 +131,9 @@ public class SwerveDriveSubsystem implements SwerveDrive {
         module.stop();
       }
     }
+
+    field2d.setRobotPose(getPose());
+    SmartDashboard.putData("Field2d", field2d);
 
     // Log empty setpoint states when disabled
     if (DriverStation.isDisabled()) {
