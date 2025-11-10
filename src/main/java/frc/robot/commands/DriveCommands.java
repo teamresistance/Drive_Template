@@ -339,7 +339,7 @@ public class DriveCommands {
             waypoints,
             Constants.PATH_CONSTRAINTS,
             new IdealStartingState(
-                drive.getPose().getTranslation().getDistance(points[0].getTranslation()) / 2,
+                drive.getPose().getTranslation().getDistance(points[0].getTranslation()),
                 points[0].getRotation()),
             new GoalEndState(0, points[points.length - 1].getRotation()));
 
@@ -369,7 +369,7 @@ public class DriveCommands {
             waypoints,
             Constants.PATH_CONSTRAINTS,
             new IdealStartingState(
-                drive.getPose().getTranslation().getDistance(points[0].getTranslation()) / 2,
+                drive.getPose().getTranslation().getDistance(points[0].getTranslation()),
                 points[0].getRotation()),
             new GoalEndState(0, points[points.length - 1].getRotation()));
 
