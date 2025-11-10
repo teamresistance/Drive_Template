@@ -323,23 +323,55 @@ public class DriveCommands {
         );
   }
 
-  public static Command goToPathAndFollowFromPoses(SwerveDrive drive, Pose2d... transforms) {
-
-    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(transforms);
+  /**
+   * Navigates to the first {@code Pose2d} provided, then begins following a path constructed from
+   * the provided poses
+   *
+   * @param drive The drive subsystem
+   * @param points {@code Pose2d} points to construct a path out of
+   */
+  public static Command goToPathAndFollowFromPoses(SwerveDrive drive, Pose2d... points) {
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(points);
     PathPlannerPath path =
         new PathPlannerPath(
             waypoints,
             Constants.PATH_CONSTRAINTS,
             new IdealStartingState(
-                drive.getPose().getTranslation().getDistance(transforms[0].getTranslation()) / 2,
-                transforms[0].getRotation()),
-            new GoalEndState(0, transforms[transforms.length - 1].getRotation()));
+                drive.getPose().getTranslation().getDistance(points[0].getTranslation()) / 2,
+                points[0].getRotation()),
+            new GoalEndState(0, points[points.length - 1].getRotation()));
 
     return Commands.sequence(
         AutoBuilder.pathfindToPoseFlipped(
-            transforms[0], Constants.PATH_CONSTRAINTS, Constants.PATH_CONSTRAINTS.maxVelocity()),
+            points[0], Constants.PATH_CONSTRAINTS, Constants.PATH_CONSTRAINTS.maxVelocity()),
         AutoBuilder.followPath(path));
-    //    return AutoBuilder.followPath(path);
+  }
+
+  /**
+   * Navigates to the first {@code Pose2d} provided, then begins following a path constructed from
+   * the provided poses
+   *
+   * @param drive The drive subsystem
+   * @param transitionVelocity The speed in m/s that should be maintained from the initial pathing
+   *     when starting to follow the actual path
+   * @param points {@code Pose2d} points to construct a path out of
+   */
+  public static Command goToPathAndFollowFromPoses(
+      SwerveDrive drive, double transitionVelocity, Pose2d... points) {
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(points);
+    PathPlannerPath path =
+        new PathPlannerPath(
+            waypoints,
+            Constants.PATH_CONSTRAINTS,
+            new IdealStartingState(
+                drive.getPose().getTranslation().getDistance(points[0].getTranslation()) / 2,
+                points[0].getRotation()),
+            new GoalEndState(0, points[points.length - 1].getRotation()));
+
+    return Commands.sequence(
+        AutoBuilder.pathfindToPoseFlipped(
+            points[0], Constants.PATH_CONSTRAINTS, transitionVelocity),
+        AutoBuilder.followPath(path));
   }
 
   /** Measures the robot's wheel radius by spinning in a circle. */
