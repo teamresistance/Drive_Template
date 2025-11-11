@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.path.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -17,10 +18,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
-import frc.robot.subsystems.drive.SwerveDriveSubsystem;
+import frc.robot.subsystems.drive.SwerveDriveIO;
 import frc.robot.util.GeomUtil;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -58,7 +61,7 @@ public class DriveCommands {
    * Field relative drive command using two joysticks (controlling linear and angular velocities).
    */
   public static Command joystickDrive(
-      SwerveDriveSubsystem drive,
+      SwerveDriveIO drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier) {
@@ -99,7 +102,7 @@ public class DriveCommands {
    * absolute rotation with a joystick.
    */
   public static Command joystickDriveAtAngle(
-      SwerveDriveSubsystem drive,
+      SwerveDriveIO drive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       Supplier<Rotation2d> rotationSupplier) {
@@ -152,7 +155,7 @@ public class DriveCommands {
    *
    * <p>This command should only be used in voltage control mode.
    */
-  public static Command feedforwardCharacterization(SwerveDriveSubsystem drive) {
+  public static Command feedforwardCharacterization(SwerveDriveIO drive) {
     List<Double> velocitySamples = new LinkedList<>();
     List<Double> voltageSamples = new LinkedList<>();
     Timer timer = new Timer();
@@ -208,7 +211,7 @@ public class DriveCommands {
    * Command that drives the robot to a target Transform2d using a PID controller for both the X and
    * Y positions.
    */
-  public static Command goToTransform(SwerveDriveSubsystem drive, Transform2d targetTransform) {
+  public static Command goToTransform(SwerveDriveIO drive, Transform2d targetTransform) {
     // PID controllers for X and Y positions
     ProfiledPIDController pidX =
         new ProfiledPIDController(
@@ -245,7 +248,7 @@ public class DriveCommands {
 
     return Commands.run(
             () -> {
-              if (drive.testingmode) return;
+              if (Constants.TEST_MODE) return;
               // Get current robot position
               Pose2d currentPose = drive.getPose();
 
@@ -312,8 +315,8 @@ public class DriveCommands {
   }
 
   public static Command goToTransformWithPathFinder(
-      SwerveDriveSubsystem drive, Transform2d targetTransform) {
-    if (drive.testingmode) return new InstantCommand(() -> {});
+      SwerveDriveIO drive, Transform2d targetTransform) {
+    if (Constants.TEST_MODE) return new InstantCommand(() -> {});
     return AutoBuilder.pathfindToPose(
         GeomUtil.transformToPose(targetTransform),
         Constants.PATH_CONSTRAINTS,
@@ -321,21 +324,136 @@ public class DriveCommands {
         );
   }
 
-  public static Command
-      goToTransformWithPathFinderPlusOffset( // Go to transform, then move to another offset
-      SwerveDriveSubsystem drive, Transform2d targetTransform, Transform2d offset) {
+  /**
+   * Navigates to the first {@code Pose2d} provided, then begins following a curved path to the end
+   * using the provided control points.
+   *
+   * @param drive The drive subsystem
+   * @param startSupplier Pose to start at
+   * @param endSupplier Pose to end at
+   * @param controls Control points
+   */
+  public static Command followCurve(
+      SwerveDriveIO drive,
+      Supplier<Pose2d> startSupplier,
+      Supplier<Pose2d> endSupplier,
+      Supplier<Pose2d[]> controls) {
 
-    if (drive.testingmode) return new InstantCommand(() -> {});
-    return AutoBuilder.pathfindToPose(
-            GeomUtil.transformToPose(targetTransform),
+    Pose2d start = startSupplier.get();
+    Pose2d end = endSupplier.get();
+    List<Translation2d> pts = new ArrayList<>();
+    pts.add(start.getTranslation());
+    for (Pose2d pose : controls.get()) {
+      pts.add(pose.getTranslation());
+    }
+    pts.add(end.getTranslation());
+
+    final int degree = pts.size() - 1;
+    int samples = Math.max(12, degree * 12);
+    BiFunction<List<Translation2d>, Double, Translation2d> evalPoint =
+        (controlPts, t) -> {
+          List<Translation2d> temp = new ArrayList<>(controlPts);
+          int n = temp.size();
+          for (int r = 1; r < n; r++) {
+            for (int i = 0; i < n - r; i++) {
+              Translation2d a = temp.get(i);
+              Translation2d b = temp.get(i + 1);
+              double x = a.getX() * (1 - t) + b.getX() * t;
+              double y = a.getY() * (1 - t) + b.getY() * t;
+              temp.set(i, new Translation2d(x, y));
+            }
+          }
+          return temp.get(0);
+        };
+
+    BiFunction<List<Translation2d>, Double, Translation2d> evalDerivative =
+        (controlPts, t) -> {
+          int n = controlPts.size() - 1;
+          if (n <= 0) return new Translation2d(0.0, 0.0);
+          List<Translation2d> diffs = new ArrayList<>();
+          for (int i = 0; i < n; i++) {
+            Translation2d a = controlPts.get(i);
+            Translation2d b = controlPts.get(i + 1);
+            diffs.add(new Translation2d((b.getX() - a.getX()) * n, (b.getY() - a.getY()) * n));
+          }
+          return evalPoint.apply(diffs, t);
+        };
+
+    Pose2d[] sampled = new Pose2d[samples];
+    for (int i = 0; i < samples; i++) {
+      double t = (double) i / (samples - 1);
+      Translation2d pos = evalPoint.apply(pts, t);
+      Translation2d deriv = evalDerivative.apply(pts, t);
+
+      Rotation2d rot;
+      if (Math.hypot(deriv.getX(), deriv.getY()) < 1e-6) {
+        Translation2d fallback = end.getTranslation().minus(start.getTranslation());
+        rot = new Rotation2d(Math.atan2(fallback.getY(), fallback.getX()));
+      } else {
+        rot = new Rotation2d(Math.atan2(deriv.getY(), deriv.getX()));
+      }
+      sampled[i] = new Pose2d(pos, rot);
+    }
+
+    return followPoses(drive, () -> sampled);
+  }
+
+  /**
+   * Navigates to the first {@code Pose2d} provided, then begins following a path constructed from
+   * the provided poses.
+   *
+   * @param drive The drive subsystem
+   * @param pointArraySupplier {@code Pose2d} points to construct a path out of
+   */
+  public static Command followPoses(SwerveDriveIO drive, Supplier<Pose2d[]> pointArraySupplier) {
+    Pose2d[] points = pointArraySupplier.get();
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(points);
+    PathPlannerPath path =
+        new PathPlannerPath(
+            waypoints,
             Constants.PATH_CONSTRAINTS,
-            0.0 // Goal end velocity in meters/sec
-            )
-        .andThen(goToTransform(drive, targetTransform.plus(offset)));
+            new IdealStartingState(
+                drive.getPose().getTranslation().getDistance(points[0].getTranslation()),
+                points[0].getRotation()),
+            new GoalEndState(0, points[points.length - 1].getRotation()));
+
+    path.preventFlipping = true;
+    return Commands.sequence(
+        AutoBuilder.pathfindToPose(
+            points[0], Constants.PATH_CONSTRAINTS, Constants.PATH_CONSTRAINTS.maxVelocity()),
+        AutoBuilder.followPath(path));
+  }
+
+  /**
+   * Navigates to the first {@code Pose2d} provided, then begins following a path constructed from
+   * the provided poses.
+   *
+   * @param drive The drive subsystem
+   * @param transitionVelocity The speed in m/s that should be maintained from the initial pathing
+   *     when starting to follow the actual path
+   * @param pointArraySupplier {@code Pose2d} points to construct a path out of
+   */
+  public static Command followPoses(
+      SwerveDriveIO drive, double transitionVelocity, Supplier<Pose2d[]> pointArraySupplier) {
+    Pose2d[] points = pointArraySupplier.get();
+    List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(points);
+    PathPlannerPath path =
+        new PathPlannerPath(
+            waypoints,
+            Constants.PATH_CONSTRAINTS,
+            new IdealStartingState(
+                drive.getPose().getTranslation().getDistance(points[0].getTranslation()),
+                points[0].getRotation()),
+            new GoalEndState(0, points[points.length - 1].getRotation()));
+
+    path.preventFlipping = true;
+    return Commands.sequence(
+        AutoBuilder.pathfindToPose(points[0], Constants.PATH_CONSTRAINTS, transitionVelocity),
+        AutoBuilder.followPath(path));
   }
 
   /** Measures the robot's wheel radius by spinning in a circle. */
-  public static Command wheelRadiusCharacterization(SwerveDriveSubsystem drive) {
+  public static Command wheelRadiusCharacterization(SwerveDriveIO drive) {
     SlewRateLimiter limiter = new SlewRateLimiter(WHEEL_RADIUS_RAMP_RATE);
     WheelRadiusCharacterizationState state = new WheelRadiusCharacterizationState();
 
@@ -382,7 +500,7 @@ public class DriveCommands {
                         wheelDelta += Math.abs(positions[i] - state.positions[i]) / 4.0;
                       }
                       double wheelRadius =
-                          (state.gyroDelta * SwerveDriveSubsystem.DRIVE_BASE_RADIUS) / wheelDelta;
+                          (state.gyroDelta * SwerveDriveIO.DRIVE_BASE_RADIUS) / wheelDelta;
 
                       Logger.recordOutput("Drive/WheelRadius/WheelDelta", wheelDelta);
                       Logger.recordOutput("Drive/WheelRadius/GyroDelta", state.gyroDelta);

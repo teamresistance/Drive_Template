@@ -13,6 +13,7 @@ import frc.robot.generated.TunerConstants;
  * (log replay from a file).
  */
 public final class Constants {
+  public static boolean TEST_MODE = false;
   public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
   public static final boolean TUNING_MODE = false;
   public static final PathConstraints PATH_CONSTRAINTS =

@@ -2,10 +2,7 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -34,7 +31,7 @@ public class RobotContainer {
   public final PhotonCamera frontCenterCamera = new PhotonCamera("front-center");
   private final Alert cameraFailureAlert;
   // Subsystems
-  private final SwerveDriveSubsystem drive;
+  private final SwerveDriveIO drive;
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
   // Dashboard inputs
@@ -107,7 +104,7 @@ public class RobotContainer {
     return vision;
   }
 
-  private SwerveDriveSubsystem configureDrive() {
+  private SwerveDriveIO configureDrive() {
     // Real robot, instantiate hardware IO implementations
     // Sim robot, instantiate physics sim IO implementations
     // Replayed robot, disable IO implementations
@@ -121,13 +118,8 @@ public class RobotContainer {
               new ModuleIOTalonFX(TunerConstants.BackLeft),
               new ModuleIOTalonFX(TunerConstants.BackRight));
       case SIM ->
-          // Sim robot, instantiate physics sim IO implementations
-          new SwerveDriveSubsystem(
-              new GyroIO() {},
-              new ModuleIOSim(TunerConstants.FrontLeft),
-              new ModuleIOSim(TunerConstants.FrontRight),
-              new ModuleIOSim(TunerConstants.BackLeft),
-              new ModuleIOSim(TunerConstants.BackRight));
+          // Sim robot, instantiate MapleSim drive simulation
+          new SwerveDriveSim();
       default ->
           // Replayed robot, disable IO implementations
           new SwerveDriveSubsystem(
@@ -150,7 +142,7 @@ public class RobotContainer {
         DriveCommands.joystickDrive(
             drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
-    //     Switch to X pattern when X button is pressed
+    // Switch to X pattern when X button is pressed
     driver.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
   }
 
