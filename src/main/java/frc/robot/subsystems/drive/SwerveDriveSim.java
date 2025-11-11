@@ -50,7 +50,7 @@ public class SwerveDriveSim implements SwerveDriveIO {
             .withTrackLengthTrackWidth(Inches.of(22), Inches.of(22))
             .withBumperSize(Inches.of(34), Inches.of(34))
             .withRobotMass(Pounds.of(125))
-            .withCustomModuleTranslations(SwerveDriveSubsystem.getModuleTranslations());
+            .withCustomModuleTranslations(SwerveDriveIO.getModuleTranslations());
 
     driveSimulaton =
         new SelfControlledSwerveDriveSimulation(

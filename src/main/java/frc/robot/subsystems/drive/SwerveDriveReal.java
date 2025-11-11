@@ -34,7 +34,7 @@ import java.util.List;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class SwerveDriveSubsystem implements SwerveDriveIO {
+public class SwerveDriveReal implements SwerveDriveIO {
 
   private final SysIdRoutine sysId;
   private final GyroIO gyroIO;
@@ -43,7 +43,7 @@ public class SwerveDriveSubsystem implements SwerveDriveIO {
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
   private final Field2d field2d = new Field2d();
 
-  public SwerveDriveSubsystem(
+  public SwerveDriveReal(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
       ModuleIO frModuleIO,
