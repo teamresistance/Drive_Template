@@ -2,11 +2,6 @@ package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-import com.pathplanner.lib.pathfinding.Pathfinding;
-import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -16,16 +11,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
-import edu.wpi.first.math.trajectory.TrajectoryGenerator;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.generated.TunerConstants;
-import frc.robot.util.LocalADStarAK;
 import frc.robot.util.TimestampedVisionUpdate;
 import java.util.List;
 import org.ironmaple.simulation.SimulatedArena;
@@ -50,7 +40,7 @@ public class SwerveDriveSim implements SwerveDriveIO {
             .withTrackLengthTrackWidth(Inches.of(22), Inches.of(22))
             .withBumperSize(Inches.of(34), Inches.of(34))
             .withRobotMass(Pounds.of(125))
-            .withCustomModuleTranslations(SwerveDriveSubsystem.getModuleTranslations());
+            .withCustomModuleTranslations(SwerveDriveIO.getModuleTranslations());
 
     driveSimulaton =
         new SelfControlledSwerveDriveSimulation(
@@ -61,43 +51,11 @@ public class SwerveDriveSim implements SwerveDriveIO {
     field2d = new Field2d();
     SmartDashboard.putData("Simulation Field", field2d);
 
-    // Configure AutoBuilder for PathPlanner
-    AutoBuilder.configure(
-        this::getPose,
-        this::setPose,
-        this::getChassisSpeeds,
-        this::runVelocity,
-        new PPHolonomicDriveController(
-            new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
-        PP_CONFIG,
-        () ->
-            DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue)
-                == DriverStation.Alliance
-                    .Red, // this is correct, model all trajectories for blue side in path planner
-        this);
-    Pathfinding.setPathfinder(new LocalADStarAK());
-    PathPlannerLogging.setLogActivePathCallback(
-        activePath -> {
-          Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0]));
-          if (activePath.isEmpty()) return;
-          Trajectory trajectory =
-              TrajectoryGenerator.generateTrajectory(
-                  activePath.get(0),
-                  activePath.stream()
-                      .skip(1)
-                      .limit(activePath.size() - (long) 2)
-                      .map(Pose2d::getTranslation)
-                      .toList(),
-                  activePath.get(activePath.size() - 1),
-                  new TrajectoryConfig(getMaxLinearSpeedMetersPerSec(), 4.2));
-
-          field2d.getObject("traj").setTrajectory(trajectory);
-        });
-    PathPlannerLogging.setLogTargetPoseCallback(
-        targetPose -> Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
+    configure(); // Configure AutoBuilder and PathPlanner
   }
 
-  private ChassisSpeeds getChassisSpeeds() {
+  @Override
+  public ChassisSpeeds getChassisSpeeds() {
     return SwerveDriveIO.kinematics.toChassisSpeeds(driveSimulaton.getMeasuredStates());
   }
 

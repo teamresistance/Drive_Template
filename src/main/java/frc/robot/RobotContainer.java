@@ -111,7 +111,7 @@ public class RobotContainer {
     return switch (Constants.CURRENT_MODE) {
       case REAL ->
           // Real robot, instantiate hardware IO implementations
-          new SwerveDriveSubsystem(
+          new SwerveDriveReal(
               new GyroIOPigeon2(),
               new ModuleIOTalonFX(TunerConstants.FrontLeft),
               new ModuleIOTalonFX(TunerConstants.FrontRight),
@@ -122,7 +122,7 @@ public class RobotContainer {
           new SwerveDriveSim();
       default ->
           // Replayed robot, disable IO implementations
-          new SwerveDriveSubsystem(
+          new SwerveDriveReal(
               new GyroIO() {},
               new ModuleIO() {},
               new ModuleIO() {},
