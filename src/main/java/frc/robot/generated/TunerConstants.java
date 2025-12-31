@@ -24,7 +24,7 @@ import edu.wpi.first.units.measure.*;
 
 // Generated using https://v6.docs.ctr-electronics.com/en/stable/docs/tuner/tuner-swerve/index.html
 public class TunerConstants {
-  // Both sets of gains need to be tuned to your individual robot.
+  // Both sets of gains need to be tuned to yoSwur individual robot.
 
   // CAN bus that the devices are located on;
   // All swerve devices must share the same CAN bus
