@@ -17,11 +17,17 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      checks: write
+      contents: write
+      pull-requests: write
 
     steps:
-      - name: Check out repo
+      - name: Check out repository
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Configure JDK
         uses: actions/setup-java@v5
@@ -34,3 +40,62 @@ jobs:
 
       - name: Check with Spotless
         run: ./gradlew spotlessCheck
+
+      - name: Run MegaLinter
+        id: ml
+        uses: oxsecurity/megalinter/flavors/java@v9
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LLM_ADVISOR_ENABLED: >-
+            ${{
+              github.event.pull_request.user.login != 'dependabot[bot]' &&
+              github.event.pull_request.user.login != 'github-actions[bot]' &&
+              !startsWith(github.event.pull_request.user.login, 'dependabot')
+            }}
+
+      - name: Upload lint reports
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: MegaLinter Report
+          path: |
+            megalinter-reports
+            mega-linter.log
+
+      - name: Prepare git directory
+        if: >-
+          steps.ml.outputs.has_updated_sources == 1 &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        run: sudo chown -Rc $UID .git/
+
+      - name: Commit and push MegaLinter fixes
+        if: >-
+          steps.ml.outputs.has_updated_sources == 1 &&
+          github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          git config user.name "megalinter-bot"
+          git config user.email "129584137+megalinter-bot@users.noreply.github.com"
+
+          if [[ -n $(git status -s) ]]; then
+            git add .
+            git commit -m "Apply lint fixes"
+
+            for i in {1..4}; do
+              if git push; then
+                echo "✅ MegaLinter fixes pushed successfully"
+                break
+              else
+                if [[ "$i" -lt 4 ]]; then
+                  WAIT_TIME=$((2 ** i))
+                  echo "⚠️ Push failed, retrying in ${WAIT_TIME}s..."
+                  sleep "$WAIT_TIME"
+                else
+                  echo "❌ Push failed after 4 attempts"
+                  exit 1
+                fi
+              fi
+            done
+          else
+            echo "ℹ️ No MegaLinter changes to commit"
+          fi
