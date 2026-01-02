@@ -329,21 +329,16 @@ public class DriveCommands {
    * using the provided control points.
    *
    * @param drive The drive subsystem
-   * @param startSupplier Pose to start at
-   * @param endSupplier Pose to end at
+   * @param start Pose to start at
+   * @param end Pose to end at
    * @param controls Control points
    */
   public static Command followCurve(
-      SwerveDriveIO drive,
-      Supplier<Pose2d> startSupplier,
-      Supplier<Pose2d> endSupplier,
-      Supplier<Pose2d[]> controls) {
+      SwerveDriveIO drive, Pose2d start, Pose2d end, Pose2d... controls) {
 
-    Pose2d start = startSupplier.get();
-    Pose2d end = endSupplier.get();
     List<Translation2d> pts = new ArrayList<>();
     pts.add(start.getTranslation());
-    for (Pose2d pose : controls.get()) {
+    for (Pose2d pose : controls) {
       pts.add(pose.getTranslation());
     }
     pts.add(end.getTranslation());
@@ -395,7 +390,7 @@ public class DriveCommands {
       sampled[i] = new Pose2d(pos, rot);
     }
 
-    return followPoses(drive, () -> sampled);
+    return followPoses(drive, sampled);
   }
 
   /**
@@ -403,10 +398,12 @@ public class DriveCommands {
    * the provided poses.
    *
    * @param drive The drive subsystem
-   * @param pointArraySupplier {@code Pose2d} points to construct a path out of
+   * @param points {@code Pose2d} points to construct a path out of
    */
-  public static Command followPoses(SwerveDriveIO drive, Supplier<Pose2d[]> pointArraySupplier) {
-    Pose2d[] points = pointArraySupplier.get();
+  public static Command followPoses(SwerveDriveIO drive, Pose2d... points) {
+    if (points == null || points.length == 0) {
+      return new InstantCommand(() -> {});
+    }
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(points);
     PathPlannerPath path =
         new PathPlannerPath(
@@ -431,11 +428,13 @@ public class DriveCommands {
    * @param drive The drive subsystem
    * @param transitionVelocity The speed in m/s that should be maintained from the initial pathing
    *     when starting to follow the actual path
-   * @param pointArraySupplier {@code Pose2d} points to construct a path out of
+   * @param points {@code Pose2d} points to construct a path out of
    */
   public static Command followPoses(
-      SwerveDriveIO drive, double transitionVelocity, Supplier<Pose2d[]> pointArraySupplier) {
-    Pose2d[] points = pointArraySupplier.get();
+      SwerveDriveIO drive, double transitionVelocity, Pose2d... points) {
+    if (points == null || points.length == 0) {
+      return new InstantCommand(() -> {});
+    }
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(points);
     PathPlannerPath path =
         new PathPlannerPath(
