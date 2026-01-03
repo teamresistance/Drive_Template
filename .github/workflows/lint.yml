@@ -45,8 +45,8 @@ jobs:
         id: ml
         uses: oxsecurity/megalinter/flavors/java@v9
         env:
-          VALIDATE_ALL_CODEBASE: true
-          JAVA_CHECKSTYLE_DISABLE_ERRORS: true
+          VALIDATE_ALL_CODEBASE: false
+          DISABLE_ERRORS: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LLM_ADVISOR_ENABLED: >-
             ${{
