@@ -79,7 +79,7 @@ public class VisionSubsystem extends SubsystemBase {
       new LoggedTunableNumber("Vision/thetaStdDevThreshold 6 meter", 10);
 
   public final LoggedTunableNumber MULTITAG_DISTRIBUTION =
-      new LoggedTunableNumber("Vision/multitagDistrubution", 0.65);
+      new LoggedTunableNumber("Vision/multitagDistribution", 0.65);
 
   AprilTagFieldLayout aprilTagFieldLayout;
   private Consumer<List<TimestampedVisionUpdate>> visionConsumer = x -> {};
@@ -178,7 +178,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         Logger.recordOutput("Photon/Camera Pose (Multi tag) " + instanceIndex, cameraPose);
       } else {
-        // If not using multitag, disambiugate and then use
+        // If not using multitag, disambiguate and then use
         PhotonTrackedTarget target = unprocessedResult.targets.get(0);
 
         if (aprilTagFieldLayout.getTagPose(target.getFiducialId()).isEmpty()) {

@@ -28,7 +28,7 @@ import org.littletonrobotics.junction.Logger;
 public class SwerveDriveSim implements SwerveDriveIO {
 
   final DriveTrainSimulationConfig simulationConfig;
-  final SelfControlledSwerveDriveSimulation driveSimulaton;
+  final SelfControlledSwerveDriveSimulation driveSimulation;
   final Field2d field2d;
 
   public SwerveDriveSim() {
@@ -42,11 +42,11 @@ public class SwerveDriveSim implements SwerveDriveIO {
             .withRobotMass(Pounds.of(125))
             .withCustomModuleTranslations(SwerveDriveIO.getModuleTranslations());
 
-    driveSimulaton =
+    driveSimulation =
         new SelfControlledSwerveDriveSimulation(
             new SwerveDriveSimulation(simulationConfig, new Pose2d(1, 1, new Rotation2d())));
 
-    SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulaton.getDriveTrainSimulation());
+    SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation.getDriveTrainSimulation());
     SimulatedArena.getInstance().resetFieldForAuto();
     field2d = new Field2d();
     SmartDashboard.putData("Simulation Field", field2d);
@@ -56,12 +56,12 @@ public class SwerveDriveSim implements SwerveDriveIO {
 
   @Override
   public ChassisSpeeds getChassisSpeeds() {
-    return SwerveDriveIO.kinematics.toChassisSpeeds(driveSimulaton.getMeasuredStates());
+    return SwerveDriveIO.kinematics.toChassisSpeeds(driveSimulation.getMeasuredStates());
   }
 
   @Override
   public Transform2d getVelocity() {
-    ChassisSpeeds speeds = driveSimulaton.getActualSpeedsFieldRelative();
+    ChassisSpeeds speeds = driveSimulation.getActualSpeedsFieldRelative();
     return new Transform2d(
         speeds.vxMetersPerSecond,
         speeds.vyMetersPerSecond,
@@ -70,7 +70,7 @@ public class SwerveDriveSim implements SwerveDriveIO {
 
   @Override
   public void periodic() {
-    driveSimulaton.periodic();
+    driveSimulation.periodic();
     SimulatedArena.getInstance().simulationPeriodic();
     field2d.setRobotPose(getPose());
     field2d.getObject("odometry").setPose(getPose());
@@ -79,7 +79,7 @@ public class SwerveDriveSim implements SwerveDriveIO {
 
   @Override
   public void runVelocity(ChassisSpeeds speeds) {
-    driveSimulaton.runChassisSpeeds(speeds, new Translation2d(), false, true);
+    driveSimulation.runChassisSpeeds(speeds, new Translation2d(), false, true);
   }
 
   @Override
@@ -113,7 +113,7 @@ public class SwerveDriveSim implements SwerveDriveIO {
 
   @Override
   public Pose2d getPose() {
-    return driveSimulaton.getActualPoseInSimulationWorld();
+    return driveSimulation.getActualPoseInSimulationWorld();
   }
 
   @Override
@@ -121,7 +121,7 @@ public class SwerveDriveSim implements SwerveDriveIO {
 
   @Override
   public Rotation2d getRotation() {
-    return driveSimulaton.getOdometryEstimatedPose().getRotation();
+    return driveSimulation.getOdometryEstimatedPose().getRotation();
   }
 
   @Override
@@ -139,7 +139,7 @@ public class SwerveDriveSim implements SwerveDriveIO {
       Pose2d visionRobotPoseMeters,
       double timestampSeconds,
       Matrix<N3, N1> visionMeasurementStdDevs) {
-    driveSimulaton.addVisionEstimation(
+    driveSimulation.addVisionEstimation(
         visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
   }
 
