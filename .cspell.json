@@ -7,6 +7,7 @@
     "**/.gitignore",
     "**/AdvantageScope Swerve Calibration.json",
     "**/build.gradle",
+    "**/settings.gradle",
     "**/gradlew",
     "**/gradlew.bat",
     "**/gradle/**",
@@ -50,6 +51,7 @@
     "setpoints",
     "Studica",
     "teleop",
+    "Vandermonde",
     "vendordeps",
     "wpilib",
     "wpilog"
