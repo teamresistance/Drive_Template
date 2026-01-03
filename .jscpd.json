@@ -1,7 +1,13 @@
 {
   "threshold": 20,
-  "reporters": ["html", "console"],
-  "ignore": ["test/**", "vendordeps/**"],
+  "reporters": [
+    "html",
+    "console"
+  ],
+  "ignore": [
+    "test/**",
+    "vendordeps/**"
+  ],
   "minLines": 10,
   "minTokens": 100,
   "absolute": true
