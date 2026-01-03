@@ -3,10 +3,16 @@
   "version": "0.2",
   "ignorePaths": [
     "**/.cspell.json",
+    "**/.jscpd.json",
     "**/.gitignore",
+    "**/AdvantageScope Swerve Calibration.json",
+    "**/build.gradle",
+    "**/gradlew",
+    "**/gradlew.bat",
     "**/.git/**",
     ".github/**/*.yml",
     ".github/CODEOWNERS",
+    "**/.vscode/**",
     "**/vendordeps/**",
     "**/src/main/deploy/**"
   ],
@@ -16,14 +22,23 @@
     "/\\w*\\_\\w*/g"
   ],
   "words": [
+    "AprilTag",
+    "cancoder",
     "Choreo",
     "CODEOWNERS",
     "CTRE",
+    "deadband",
+    "feedforward",
     "gradlew",
+    "navgrid",
     "Qube",
     "pathfinding",
     "pathplanner",
+    "photonlib",
+    "setpoints",
     "Studica",
-    "teleop"
+    "teleop",
+    "vendordeps",
+    "wpilib"
   ]
 }

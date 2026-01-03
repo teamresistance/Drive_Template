@@ -5,6 +5,7 @@
     "console"
   ],
   "ignore": [
+    ".vscode/**",
     "test/**",
     "vendordeps/**"
   ],
