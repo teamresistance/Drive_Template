@@ -1,0 +1,28 @@
+{
+  "language": "en,en-US",
+  "version": "0.2",
+  "ignorePaths": [
+    "**/.cspell.json",
+    "**/.gitignore",
+    "**/.git/**",
+    ".github/**/*.yml",
+    ".github/CODEOWNERS",
+    "**/vendordeps/**"
+  ],
+  "ignoreRegExpList": [
+    "/`+([\\s\\S]*?)`+/g",
+    "/^```[\\s\\S]*?^```/gm",
+    "/\\w*\\_\\w*/g"
+  ],
+  "words": [
+    "Choreo",
+    "CODEOWNERS",
+    "CTRE",
+    "gradlew",
+    "Qube",
+    "pathfinding",
+    "pathplanner",
+    "Studica",
+    "teleop"
+  ]
+}
