@@ -18,8 +18,20 @@ guidelines = 120
 indent_size = 2
 
 # Markdown
-[*.{md}]
+[*.md]
 charset = utf-8
 indent_style = space
 indent_size = 2
 quote_type = single
+
+# Java
+[*.java]
+indent_size = 2
+
+# Ignore
+[src/main/deploy/**]
+end_of_line = unset
+insert_final_newline = unset
+trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset

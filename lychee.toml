@@ -1,0 +1,5 @@
+# Only check external absolute URLs
+include = ['^https?://']
+
+# Exclude all private IPs and localhost
+exclude_all_private = true

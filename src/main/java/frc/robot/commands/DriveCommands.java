@@ -265,7 +265,7 @@ public class DriveCommands {
                   angleController.calculate(
                       drive.getRotation().getRadians(), targetRotation.getRadians());
 
-              // If the error is small, stop the robot (use deadzone for smooth stopping)
+              // If the error is small, stop the robot (use deadband for smooth stopping)
               if (Math.abs(errorX) < 0.02
                   && Math.abs(errorY) < 0.02
                   && Math.abs(errorrot.getRadians()) < 5 * 3.14 / 180) {

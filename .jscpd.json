@@ -1,0 +1,15 @@
+{
+  "threshold": 20,
+  "reporters": [
+    "html",
+    "console"
+  ],
+  "ignore": [
+    ".vscode/**",
+    "test/**",
+    "vendordeps/**"
+  ],
+  "minLines": 10,
+  "minTokens": 100,
+  "absolute": true
+}
