@@ -3,6 +3,7 @@ package frc.robot.subsystems.drive;
 import static frc.robot.util.PhoenixUtil.tryUntilOk;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -80,9 +81,11 @@ public class ModuleIOTalonFX implements ModuleIO {
       SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
           constants) {
     this.constants = constants;
-    driveTalon = new TalonFX(constants.DriveMotorId, TunerConstants.DrivetrainConstants.CANBusName);
-    turnTalon = new TalonFX(constants.SteerMotorId, TunerConstants.DrivetrainConstants.CANBusName);
-    cancoder = new CANcoder(constants.EncoderId, TunerConstants.DrivetrainConstants.CANBusName);
+
+    var bus = new CANBus(TunerConstants.DrivetrainConstants.CANBusName);
+    driveTalon = new TalonFX(constants.DriveMotorId, bus);
+    turnTalon = new TalonFX(constants.SteerMotorId, bus);
+    cancoder = new CANcoder(constants.EncoderId, bus);
 
     // Configure drive motor
     var driveConfig = constants.DriveMotorInitialConfigs;
@@ -112,7 +115,7 @@ public class ModuleIOTalonFX implements ModuleIO {
           case SyncCANcoder -> FeedbackSensorSourceValue.SyncCANcoder;
           default ->
               throw new IllegalArgumentException(
-                  "You are using an unsupported swerve configuration, which this template does not support without manual customization. The 2025 release of Phoenix supports some swerve configurations which were not available during 2025 beta testing, preventing any development and support from the AdvantageKit developers.");
+                  "You are using an unsupported swerve configuration, which this template does not support without manual customization.");
         };
     turnConfig.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
     turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.SteerMotorGearRatio;
@@ -159,7 +162,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     BaseStatusSignal.setUpdateFrequencyForAll(
         SwerveDriveIO.ODOMETRY_FREQUENCY, drivePosition, turnPosition);
     BaseStatusSignal.setUpdateFrequencyForAll(
-        50.0,
+        SwerveDriveIO.ODOMETRY_FREQUENCY,
         driveVelocity,
         driveAppliedVolts,
         driveCurrent,
@@ -211,7 +214,7 @@ public class ModuleIOTalonFX implements ModuleIO {
   public void setDriveOpenLoop(double output) {
     driveTalon.setControl(
         switch (constants.DriveMotorClosedLoopOutput) {
-          case Voltage -> voltageRequest.withOutput(output);
+          case Voltage -> voltageRequest.withOutput(output).withEnableFOC(true);
           case TorqueCurrentFOC -> torqueCurrentRequest.withOutput(output);
         });
   }
@@ -220,7 +223,7 @@ public class ModuleIOTalonFX implements ModuleIO {
   public void setTurnOpenLoop(double output) {
     turnTalon.setControl(
         switch (constants.SteerMotorClosedLoopOutput) {
-          case Voltage -> voltageRequest.withOutput(output);
+          case Voltage -> voltageRequest.withOutput(output).withEnableFOC(true);
           case TorqueCurrentFOC -> torqueCurrentRequest.withOutput(output);
         });
   }
@@ -230,7 +233,8 @@ public class ModuleIOTalonFX implements ModuleIO {
     double velocityRotPerSec = Units.radiansToRotations(velocityRadPerSec);
     driveTalon.setControl(
         switch (constants.DriveMotorClosedLoopOutput) {
-          case Voltage -> velocityVoltageRequest.withVelocity(velocityRotPerSec);
+          case Voltage ->
+              velocityVoltageRequest.withVelocity(velocityRotPerSec).withEnableFOC(true);
           case TorqueCurrentFOC -> velocityTorqueCurrentRequest.withVelocity(velocityRotPerSec);
         });
   }
@@ -239,7 +243,8 @@ public class ModuleIOTalonFX implements ModuleIO {
   public void setTurnPosition(Rotation2d rotation) {
     turnTalon.setControl(
         switch (constants.SteerMotorClosedLoopOutput) {
-          case Voltage -> positionVoltageRequest.withPosition(rotation.getRotations());
+          case Voltage ->
+              positionVoltageRequest.withPosition(rotation.getRotations()).withEnableFOC(true);
           case TorqueCurrentFOC ->
               positionTorqueCurrentRequest.withPosition(rotation.getRotations());
         });
