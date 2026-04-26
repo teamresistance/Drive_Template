@@ -35,7 +35,7 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Test
         run: ./gradlew test --no-daemon
