@@ -6,6 +6,7 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.GeomUtil;
@@ -139,24 +140,23 @@ public class VisionSubsystem extends SubsystemBase {
 
       Logger.recordOutput(
           LOGGING_KEY_PREFIX + instanceIndex + " Has Targets", unprocessedResult.hasTargets());
-      //      Logger.recordOutput(
-      //          LOGGING_KEY_PREFIX + instanceIndex + "LatencyMS",
-      //          unprocessedResult.metadata.getLatencyMillis());
+      Logger.recordOutput(
+          LOGGING_KEY_PREFIX + instanceIndex + "LatencyMS",
+          unprocessedResult.metadata.getLatencyMillis());
 
-      //      Logger.recordOutput(
-      //          "Photon/Raw Camera Data " + instanceIndex,
-      //          SmartDashboard.getRaw(
-      //              "photonvision/" + cameras[instanceIndex].getName() + "/rawBytes", new byte[]
-      // {}));
+      Logger.recordOutput(
+          "Photon/Raw Camera Data " + instanceIndex,
+          SmartDashboard.getRaw(
+              "photonvision/" + cameras[instanceIndex].getName() + "/rawBytes", new byte[] {}));
 
       // Continue if the camera doesn't have any targets
       if (!unprocessedResult.hasTargets()) {
-        //        Logger.recordOutput("Photon/Tags Used " + instanceIndex, 0);
+        Logger.recordOutput("Photon/Tags Used " + instanceIndex, 0);
         continue;
       }
 
       double timestamp = unprocessedResult.getTimestampSeconds();
-      //      Logger.recordOutput(LOGGING_KEY_PREFIX + instanceIndex + " Timestamp", timestamp);
+      Logger.recordOutput(LOGGING_KEY_PREFIX + instanceIndex + " Timestamp", timestamp);
 
       boolean shouldUseMultiTag = unprocessedResult.getMultiTagResult().isPresent();
 
@@ -178,8 +178,7 @@ public class VisionSubsystem extends SubsystemBase {
           }
         }
 
-        //        Logger.recordOutput("Photon/Camera Pose (Multi tag) " + instanceIndex,
-        // cameraPose);
+        Logger.recordOutput("Photon/Camera Pose (Multi tag) " + instanceIndex, cameraPose);
       } else {
         // If not using multitag, disambiguate and then use
         PhotonTrackedTarget target = unprocessedResult.targets.get(0);
@@ -218,8 +217,7 @@ public class VisionSubsystem extends SubsystemBase {
         tagPose3ds.add(tagPos);
 
         singleTagAdjustment = SingleTagAdjustment.getAdjustmentForTag(target.getFiducialId());
-        //        Logger.recordOutput("Photon/Camera Pose (Single Tag) " + instanceIndex,
-        // cameraPose);
+        Logger.recordOutput("Photon/Camera Pose (Single Tag) " + instanceIndex, cameraPose);
       }
 
       if (robotPose == null) {
@@ -271,8 +269,8 @@ public class VisionSubsystem extends SubsystemBase {
                     singleTagAdjustment * xyStdDev * STD_DEV_SCALAR_SHOOTING,
                     singleTagAdjustment * thetaStdDev * STD_DEV_SCALAR_SHOOTING)));
 
-        //        Logger.recordOutput("VisionData/" + instanceIndex, robotPose);
-        //        Logger.recordOutput("Photon/Tags Used " + instanceIndex, tagPose3ds.size());
+        Logger.recordOutput("VisionData/" + instanceIndex, robotPose);
+        Logger.recordOutput("Photon/Tags Used " + instanceIndex, tagPose3ds.size());
       }
     }
 
