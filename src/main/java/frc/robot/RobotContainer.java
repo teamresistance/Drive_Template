@@ -24,19 +24,24 @@ import org.photonvision.PhotonCamera;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+
+  // photon vision cameras
   public final PhotonCamera frontLeftCamera = new PhotonCamera("front-left");
   public final PhotonCamera frontRightCamera = new PhotonCamera("front-right");
   public final PhotonCamera backLeftCamera = new PhotonCamera("back_left");
   public final PhotonCamera backRightCamera = new PhotonCamera("back_right");
   public final PhotonCamera frontCenterCamera = new PhotonCamera("front-center");
   private final Alert cameraFailureAlert;
+
   // Subsystems
   private final SwerveDriveIO drive;
+  private VisionSubsystem vision;
+
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
+
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
-  private VisionSubsystem vision;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
