@@ -2,6 +2,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.path.PathConstraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -13,6 +14,7 @@ import frc.robot.generated.TunerConstants;
  * (log replay from a file).
  */
 public final class Constants {
+
   public static boolean TEST_MODE = false;
   public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
   public static final boolean TUNING_MODE = false;
@@ -22,6 +24,14 @@ public final class Constants {
           5.0,
           Units.degreesToRadians(540),
           Units.degreesToRadians(400));
+
+  public static final int LED_CANDLE_ID = 40;
+  public static final CANBus LED_CANDLE_BUS = new CANBus("drive");
+
+  public enum LED_MODE {
+    DISABLED,
+    ENABLED,
+  }
 
   public enum Mode {
     /** Running on a real robot. */
