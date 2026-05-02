@@ -63,10 +63,6 @@ public final class Constants {
       new SolidColor(LED_START_INDEX, LED_END_INDEX).withColor(new RGBWColor(0, 255, 0));
   public static final SolidColor LED_ANIMATION_INACTIVE =
       new SolidColor(LED_START_INDEX, LED_END_INDEX).withColor(new RGBWColor(255, 0, 0));
-  public static final StrobeAnimation LED_ANIMATION_BUMP =
-      new StrobeAnimation(LED_START_INDEX, LED_END_INDEX)
-          .withFrameRate(10)
-          .withColor(new RGBWColor(0, 255, 255));
   public static final LarsonAnimation LED_ANIMATION_AUTO =
       new LarsonAnimation(LED_START_INDEX, LED_END_INDEX)
           .withFrameRate(20)

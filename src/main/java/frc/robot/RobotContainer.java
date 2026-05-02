@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.leds.LEDStream;
+import frc.robot.subsystems.leds.LEDSubsystem;
 import frc.robot.subsystems.vision.*;
 import java.io.IOException;
 import org.littletonrobotics.junction.Logger;
@@ -36,6 +38,7 @@ public class RobotContainer {
   // Subsystems
   private final SwerveDriveIO drive;
   private VisionSubsystem vision;
+  private final LEDSubsystem led;
 
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
@@ -48,6 +51,7 @@ public class RobotContainer {
     drive = configureDrive();
     vision = configureAprilTagVision();
     configureNamedCommands();
+    this.led = new LEDSubsystem();
 
     autoChooser = configureAutos();
     configureButtonBindings();
@@ -149,6 +153,63 @@ public class RobotContainer {
 
     // Switch to X pattern when X button is pressed
     driver.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+
+    // Temporary button bindings for testing LEDs
+    driver
+        .y()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    led.addStream(
+                        new LEDStream.LEDStreamBuilder(
+                                "buttonY", 5, () -> Constants.LEDMode.RAINBOW)
+                            .withActiveSupplier(() -> true)
+                            .build()),
+                led));
+    driver
+        .b()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    led.addStream(
+                        new LEDStream.LEDStreamBuilder("buttonB", 4, () -> Constants.LEDMode.ACTIVE)
+                            .withActiveSupplier(() -> true)
+                            .build()),
+                led));
+    driver
+        .a()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    led.addStream(
+                        new LEDStream.LEDStreamBuilder("buttonA", 3, () -> Constants.LEDMode.AUTO)
+                            .withActiveSupplier(() -> true)
+                            .build()),
+                led));
+    driver
+        .rightTrigger()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    led.addStream(
+                        new LEDStream.LEDStreamBuilder(
+                                "buttonRightTrigger",
+                                2,
+                                () -> Constants.LEDMode.CLOSE_TO_NEXT_SHIFT)
+                            .withActiveSupplier(() -> true)
+                            .build()),
+                led));
+    driver
+        .leftTrigger()
+        .onTrue(
+            Commands.runOnce(
+                () ->
+                    led.addStream(
+                        new LEDStream.LEDStreamBuilder(
+                                "buttonLeftTrigger", 1, () -> Constants.LEDMode.DISABLED)
+                            .withActiveSupplier(() -> true)
+                            .build()),
+                led));
   }
 
   /**

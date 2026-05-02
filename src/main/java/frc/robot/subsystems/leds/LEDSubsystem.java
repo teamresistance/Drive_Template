@@ -17,13 +17,13 @@ public class LEDSubsystem extends SubsystemBase {
   private final CANdle candle = new CANdle(Constants.CANDLE_ID, new CANBus("drive"));
 
   /**
-   * Initally defines the modeToAnimation HashMap. This makes it easier to modify the code as it
-   * condenses one absolutely massive switch statement to a slightly less massive HashMap. The two
+   * Initally defines the modeToAnimation EnumMap. This makes it easier to modify the code as it
+   * condenses one absolutely massive switch statement to a slightly less massive EnumMap. The two
    * data types are 1. the LEDModes defined in the Constants file and 2. the light animations
    * possible
    */
   private final Map<Constants.LEDMode, Supplier<com.ctre.phoenix6.controls.ControlRequest>>
-      modeToAnimation = new HashMap<>();
+      modeToAnimation = new EnumMap<>(Constants.LEDMode.class);
 
   /**
    * Constructor intializes modeToAnimation. Commented out modes reflect the commented out modes in
@@ -65,6 +65,9 @@ public class LEDSubsystem extends SubsystemBase {
 
   // Adds an LEDStream to the list of periodically checked streams.
   public void addStream(LEDStream stream) {
+
+    // Remove any existing stream with the same name to avoid duplicates
+    streams.removeIf(s -> s.name.equals(stream.name));
     streams.add(stream);
   }
 

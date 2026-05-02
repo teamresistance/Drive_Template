@@ -5,9 +5,6 @@ import frc.robot.Constants;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
-// TODO:
-//  Convert this to a builder format?
-//  Example: new LEDStream().withName(...).withPriority(...).withLEDModeSupplier(...)
 public class LEDStream {
 
   public final String name;
@@ -24,25 +21,60 @@ public class LEDStream {
   private double expirationTime = -1;
   private boolean timedActive = false;
 
-  public LEDStream(
-      String name,
-      int priority,
-      Supplier<Constants.LEDMode> ledModeSupplier,
-      Supplier<Boolean> activeSupplier) {
-
-    this.name = name;
-    this.priority = priority;
-    this.ledModeSupplier = ledModeSupplier;
-    this.activeSupplier = activeSupplier;
+  // Creates the builder format.
+  private LEDStream(LEDStreamBuilder builder) {
+    this.name = builder.name;
+    this.priority = builder.priority;
+    this.ledModeSupplier = builder.ledModeSupplier;
+    this.activeSupplier = builder.activeSupplier;
   }
 
-  // overload for exclusively time based streams, so () -> false doesn't need to exist
-  public LEDStream(String name, int priority, Supplier<Constants.LEDMode> ledModeSupplier) {
+  public static class LEDStreamBuilder {
 
-    this.name = name;
-    this.priority = priority;
-    this.ledModeSupplier = ledModeSupplier;
-    this.activeSupplier = () -> false;
+    // Mandatory
+    private final String name;
+    private final int priority;
+    private final Supplier<Constants.LEDMode> ledModeSupplier;
+
+    // Optional
+    private Supplier<Boolean> activeSupplier = () -> false;
+
+    private DoubleSupplier brightnessSupplier;
+    private boolean useBrightnessSupplier = false;
+
+    private DoubleSupplier framerateSupplier;
+    private boolean useFramerateSupplier = false;
+
+    // Mandatory
+    public LEDStreamBuilder(
+        String name, int priority, Supplier<Constants.LEDMode> ledModeSupplier) {
+      this.name = name;
+      this.priority = priority;
+      this.ledModeSupplier = ledModeSupplier;
+    }
+
+    // Optional
+    public LEDStreamBuilder withActiveSupplier(Supplier<Boolean> activeSupplier) {
+      this.activeSupplier = activeSupplier;
+      return this;
+    }
+
+    public LEDStreamBuilder withBrightnessSupplier(DoubleSupplier brightnessSupplier) {
+      this.brightnessSupplier = brightnessSupplier;
+      this.useBrightnessSupplier = true;
+      return this;
+    }
+
+    public LEDStreamBuilder withFramerateSupplier(DoubleSupplier framerateSupplier) {
+      this.framerateSupplier = framerateSupplier;
+      this.useFramerateSupplier = true;
+      return this;
+    }
+
+    // Build method to create the LEDStream
+    public LEDStream build() {
+      return new LEDStream(this);
+    }
   }
 
   /**
@@ -60,7 +92,7 @@ public class LEDStream {
 
   public boolean isActive() {
 
-    // when running on time, active state is based on expired/not
+    // When running on time, active state is based on expired/not
     if (timedActive) {
       if (isExpired()) {
         timedActive = false;
@@ -70,24 +102,12 @@ public class LEDStream {
       return true;
     }
 
-    // otherwise actually use the condition
+    // Otherwise actually use the condition
     return activeSupplier.get();
   }
 
   public Constants.LEDMode getLEDMode() {
     return ledModeSupplier.get();
-  }
-
-  public LEDStream withBrightnessSupplier(DoubleSupplier brightnessSupplier) {
-    this.brightnessSupplier = brightnessSupplier;
-    useBrightnessSupplier = true;
-    return this;
-  }
-
-  public LEDStream withFramerateSupplier(DoubleSupplier framerateSupplier) {
-    this.framerateSupplier = framerateSupplier;
-    useFramerateSupplier = true;
-    return this;
   }
 
   public void forceOff() {
