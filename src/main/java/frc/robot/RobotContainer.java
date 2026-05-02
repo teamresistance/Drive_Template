@@ -6,10 +6,11 @@ import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.ContinuousLEDCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.vision.*;
 import java.io.IOException;
@@ -36,6 +37,7 @@ public class RobotContainer {
   // Subsystems
   private final SwerveDriveIO drive;
   private VisionSubsystem vision;
+  private final LEDSubsystem leds;
 
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
@@ -43,14 +45,41 @@ public class RobotContainer {
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    drive = configureDrive();
+
+    // instantiate any special subsystems that do not get differing implementations here
+    leds = new LEDSubsystem();
+
+    switch (Constants.CURRENT_MODE) {
+      case REAL: // REAL robot, instantiate real implementations
+        drive =
+            new SwerveDriveReal(
+                new GyroIOPigeon2(),
+                new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                new ModuleIOTalonFX(TunerConstants.FrontRight),
+                new ModuleIOTalonFX(TunerConstants.BackLeft),
+                new ModuleIOTalonFX(TunerConstants.BackRight));
+        break;
+
+      case SIM: // SIMULATED robot, instantiate sim implementations
+        drive = new SwerveDriveSim();
+        break;
+
+      default: // REPLAYED robot, instantiate blank implementations or default ones
+        drive =
+            new SwerveDriveReal(
+                new GyroIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {});
+    }
+
     vision = configureAprilTagVision();
     configureNamedCommands();
-
     autoChooser = configureAutos();
     configureButtonBindings();
+    configureFeedback();
     cameraFailureAlert = new Alert("Camera system failure", Alert.AlertType.kError);
   }
 
@@ -59,7 +88,7 @@ public class RobotContainer {
   }
 
   private LoggedDashboardChooser<Command> configureAutos() {
-    // Set up auto routines
+    // Set up pathplanner auto routines
     LoggedDashboardChooser<Command> chooser =
         new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
@@ -82,11 +111,7 @@ public class RobotContainer {
     return chooser;
   }
 
-  /**
-   * Configures the AprilTag vision system with PhotonVision cameras.
-   *
-   * @return The configured VisionSubsystem, or null if initialization fails
-   */
+  /** Returns the AprilTag vision system with PhotonVision cameras. */
   private VisionSubsystem configureAprilTagVision() {
     try {
       vision =
@@ -109,38 +134,7 @@ public class RobotContainer {
     return vision;
   }
 
-  private SwerveDriveIO configureDrive() {
-    // Real robot, instantiate hardware IO implementations
-    // Sim robot, instantiate physics sim IO implementations
-    // Replayed robot, disable IO implementations
-    return switch (Constants.CURRENT_MODE) {
-      case REAL ->
-          // Real robot, instantiate hardware IO implementations
-          new SwerveDriveReal(
-              new GyroIOPigeon2(),
-              new ModuleIOTalonFX(TunerConstants.FrontLeft),
-              new ModuleIOTalonFX(TunerConstants.FrontRight),
-              new ModuleIOTalonFX(TunerConstants.BackLeft),
-              new ModuleIOTalonFX(TunerConstants.BackRight));
-      case SIM ->
-          // Sim robot, instantiate MapleSim drive simulation
-          new SwerveDriveSim();
-      default ->
-          // Replayed robot, disable IO implementations
-          new SwerveDriveReal(
-              new GyroIO() {},
-              new ModuleIO() {},
-              new ModuleIO() {},
-              new ModuleIO() {},
-              new ModuleIO() {});
-    };
-  }
-
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link Joystick} or {@link
-   * XboxController}), and then passing it to a {@link JoystickButton}.
-   */
+  /** All triggers and button bindings for driver control go here. */
   private void configureButtonBindings() {
     // Normal field-relative drive
     drive.setDefaultCommand(
@@ -151,11 +145,12 @@ public class RobotContainer {
     driver.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
+  /** Any triggers for driver feedback (i.e. rumbles, the LED command, etc.) should go here. */
+  private void configureFeedback() {
+    leds.setDefaultCommand(new ContinuousLEDCommand(leds, drive));
+  }
+
+  /** This method should return the Command to run during auto scheduled by Robot.java */
   public Command getAutonomousCommand() {
     Command autoCommand = autoChooser.get();
     if (autoCommand == null) {
