@@ -53,35 +53,6 @@ public class VisionSubsystem extends SubsystemBase {
           },
           1);
 
-  public final LoggedTunableNumber XY_STD_DEV_THRESHOLD_1 =
-      new LoggedTunableNumber("Vision/xyStdDevThreshold 1 meter", 0.01);
-  public final LoggedTunableNumber XY_STD_DEV_THRESHOLD_2 =
-      new LoggedTunableNumber("Vision/xyStdDevThreshold 2 meter", 0.01);
-  public final LoggedTunableNumber XY_STD_DEV_THRESHOLD_3 =
-      new LoggedTunableNumber("Vision/xyStdDevThreshold 3 meter", 0.01);
-  public final LoggedTunableNumber XY_STD_DEV_THRESHOLD_4 =
-      new LoggedTunableNumber("Vision/xyStdDevThreshold 4 meter", 0.01);
-  public final LoggedTunableNumber XY_STD_DEV_THRESHOLD_5 =
-      new LoggedTunableNumber("Vision/xyStdDevThreshold 5 meter", 7);
-  public final LoggedTunableNumber XY_STD_DEV_THRESHOLD_6 =
-      new LoggedTunableNumber("Vision/xyStdDevThreshold 6 meter", 10);
-
-  public final LoggedTunableNumber THETA_STD_DEV_THRESHOLD_1 =
-      new LoggedTunableNumber("Vision/thetaStdDevThreshold 1 meter", 0.01);
-  public final LoggedTunableNumber THETA_STD_DEV_THRESHOLD_2 =
-      new LoggedTunableNumber("Vision/thetaStdDevThreshold 2 meter", 0.01);
-  public final LoggedTunableNumber THETA_STD_DEV_THRESHOLD_3 =
-      new LoggedTunableNumber("Vision/thetaStdDevThreshold 3 meter", 0.01);
-  public final LoggedTunableNumber THETA_STD_DEV_THRESHOLD_4 =
-      new LoggedTunableNumber("Vision/thetaStdDevThreshold 4 meter", 0.01);
-  public final LoggedTunableNumber THETA_STD_DEV_THRESHOLD_5 =
-      new LoggedTunableNumber("Vision/thetaStdDevThreshold 5 meter", 7);
-  public final LoggedTunableNumber THETA_STD_DEV_THRESHOLD_6 =
-      new LoggedTunableNumber("Vision/thetaStdDevThreshold 6 meter", 10);
-
-  public final LoggedTunableNumber MULTITAG_DISTRIBUTION =
-      new LoggedTunableNumber("Vision/multitagDistribution", 0.65);
-
   AprilTagFieldLayout aprilTagFieldLayout;
   private Consumer<List<TimestampedVisionUpdate>> visionConsumer = x -> {};
   private List<TimestampedVisionUpdate> visionUpdates;
@@ -246,8 +217,8 @@ public class VisionSubsystem extends SubsystemBase {
         xyStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
         thetaStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
       } else {
-        xyStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
-        thetaStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
+        xyStdDev = XY_STD_DEV_MODEL.predict(avgDistance);
+        thetaStdDev = THETA_STD_DEV_MODEL.predict(avgDistance);
       }
 
       if (shouldUseMultiTag) {
