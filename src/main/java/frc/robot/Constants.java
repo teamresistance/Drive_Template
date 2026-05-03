@@ -48,10 +48,8 @@ public final class Constants {
     INACTIVE,
     AUTO,
     DISABLED,
-    CLOSE_TO_NEXT_SHIFT,
-    CLOSE_TO_NEXT_SHIFT_US,
-    CLOSE_TO_NEXT_SHIFT_NOTUS,
-    ENDGAME
+    STROBE, // A temporary mode used for testing strobe patterns, not meant to be used in actual
+    // code
   }
 
   public static final int LED_START_INDEX = 0;
@@ -74,20 +72,8 @@ public final class Constants {
       new StrobeAnimation(LED_START_INDEX, LED_END_INDEX)
           .withColor(new RGBWColor(15, 0, 0))
           .withFrameRate(1);
-  public static final StrobeAnimation LED_ANIMATION_CLOSE_TO_NEXT_SHIFT =
-      new StrobeAnimation(LED_START_INDEX, LED_END_INDEX)
-          .withColor(new RGBWColor(255, 40, 0))
-          .withFrameRate(4);
-  public static final StrobeAnimation LED_ANIMATION_CLOSE_TO_NEXT_SHIFT_US =
+  public static final StrobeAnimation LED_ANIMATION_STROBE =
       new StrobeAnimation(LED_START_INDEX, LED_END_INDEX)
           .withColor(new RGBWColor(0, 255, 0))
           .withFrameRate(6);
-  public static final StrobeAnimation LED_ANIMATION_CLOSE_TO_NEXT_SHIFT_NOTUS =
-      new StrobeAnimation(LED_START_INDEX, LED_END_INDEX)
-          .withColor(new RGBWColor(255, 0, 0))
-          .withFrameRate(6);
-  public static final StrobeAnimation LED_ANIMATION_ENDGAME =
-      new StrobeAnimation(LED_START_INDEX, LED_END_INDEX)
-          .withColor(new RGBWColor(255, 255, 0))
-          .withFrameRate(4);
 }

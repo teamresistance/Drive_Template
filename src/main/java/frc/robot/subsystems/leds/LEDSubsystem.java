@@ -40,18 +40,10 @@ public class LEDSubsystem extends SubsystemBase {
     modeToAnimation.put(Constants.LEDMode.AUTO, () -> Constants.LED_ANIMATION_AUTO);
     modeToAnimation.put(Constants.LEDMode.ACTIVE, () -> Constants.LED_ANIMATION_ACTIVE);
     modeToAnimation.put(Constants.LEDMode.INACTIVE, () -> Constants.LED_ANIMATION_INACTIVE);
-    modeToAnimation.put(
-        Constants.LEDMode.CLOSE_TO_NEXT_SHIFT, () -> Constants.LED_ANIMATION_CLOSE_TO_NEXT_SHIFT);
-    modeToAnimation.put(
-        Constants.LEDMode.CLOSE_TO_NEXT_SHIFT_US,
-        () -> Constants.LED_ANIMATION_CLOSE_TO_NEXT_SHIFT_US);
-    modeToAnimation.put(
-        Constants.LEDMode.CLOSE_TO_NEXT_SHIFT_NOTUS,
-        () -> Constants.LED_ANIMATION_CLOSE_TO_NEXT_SHIFT_NOTUS);
-    modeToAnimation.put(Constants.LEDMode.ENDGAME, () -> Constants.LED_ANIMATION_ENDGAME);
+    modeToAnimation.put(Constants.LEDMode.STROBE, () -> Constants.LED_ANIMATION_STROBE);
   }
 
-  // Returns the appropriate disables animation based on battery voltage
+  // Returns the appropriate disabled animation based on battery voltage
   private ControlRequest getDisabledAnimation() {
     double voltage = RobotController.getBatteryVoltage();
     if (voltage >= 12.6) {
@@ -100,13 +92,19 @@ public class LEDSubsystem extends SubsystemBase {
     if (modeToAnimation.containsKey(ledMode)) {
       try {
         candle.setControl(modeToAnimation.get(ledMode).get());
-        Logger.recordOutput("LEDs/CurrentMode", ledModeString);
+        Logger.recordOutput("LEDs/LEDStatus", ledModeString);
       } catch (Exception e) {
-        Logger.recordOutput("LEDs/Error", "Failed to apply mode: " + ledModeString);
+        Logger.recordOutput("LEDs/LEDStatus", "Failed to apply mode: " + ledModeString);
       }
     } else {
       Logger.recordOutput(
-          "LED/Error", "LED mode not configured in modeToAnimation map: " + ledModeString);
+          "LEDs/LEDStatus", "LED mode not configured in modeToAnimation map: " + ledModeString);
+      System.out.println("null");
     }
+  }
+
+  // Clears all LEDStreams. This can be used to reset the LEDSubsystem.
+  public void clearStreams() {
+    streams.clear();
   }
 }

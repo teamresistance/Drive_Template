@@ -161,54 +161,57 @@ public class RobotContainer {
         .onTrue(
             new LEDCommand(
                 led,
-                new LEDStream.LEDStreamBuilder("buttonY", 5, () -> Constants.LEDMode.RAINBOW)
-                    .withActiveSupplier(() -> true)
-                    .build(),
-                5));
+                new LEDStream()
+                    .withName("buttonY")
+                    .withPriority(5)
+                    .withLEDModeSupplier(() -> Constants.LEDMode.RAINBOW),
+                10));
     driver
         .b()
         .onTrue(
             new LEDCommand(
                 led,
-                new LEDStream.LEDStreamBuilder("buttonB", 4, () -> Constants.LEDMode.ACTIVE)
-                    .withActiveSupplier(() -> true)
-                    .build(),
-                7));
+                new LEDStream()
+                    .withName("buttonB")
+                    .withPriority(4)
+                    .withLEDModeSupplier(() -> Constants.LEDMode.ACTIVE),
+                10));
     driver
         .a()
         .onTrue(
             new LEDCommand(
                 led,
-                new LEDStream.LEDStreamBuilder("buttonA", 3, () -> Constants.LEDMode.AUTO)
-                    .withActiveSupplier(() -> true)
-                    .build(),
-                8));
+                new LEDStream()
+                    .withName("buttonA")
+                    .withPriority(3)
+                    .withLEDModeSupplier(() -> Constants.LEDMode.AUTO),
+                10));
     driver
         .rightBumper()
         .onTrue(
             new LEDCommand(
                 led,
-                new LEDStream.LEDStreamBuilder(
-                        "buttonRightBumper", 2, () -> Constants.LEDMode.CLOSE_TO_NEXT_SHIFT)
-                    .withActiveSupplier(() -> true)
-                    .build(),
+                new LEDStream()
+                    .withName("buttonRightBumper")
+                    .withPriority(2)
+                    .withLEDModeSupplier(() -> Constants.LEDMode.STROBE),
                 10));
     driver
         .leftBumper()
         .onTrue(
             new LEDCommand(
                 led,
-                new LEDStream.LEDStreamBuilder(
-                        "buttonLeftBumper", 1, () -> Constants.LEDMode.DISABLED)
-                    .withActiveSupplier(() -> true)
-                    .build(),
-                3));
+                new LEDStream()
+                    .withName("buttonLeftBumper")
+                    .withPriority(1)
+                    .withLEDModeSupplier(() -> Constants.LEDMode.DISABLED)));
+    driver.start().onTrue(Commands.runOnce(led::clearStreams, led));
   }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
-   * @return the command to run in autonomous
+   * @return the command to run in autonoSmous
    */
   public Command getAutonomousCommand() {
     Command autoCommand = autoChooser.get();

@@ -7,10 +7,10 @@ import java.util.function.Supplier;
 
 public class LEDStream {
 
-  public final String name;
-  public final int priority;
-  private final Supplier<Constants.LEDMode> ledModeSupplier;
-  private final Supplier<Boolean> activeSupplier;
+  public String name;
+  public int priority;
+  private Supplier<Constants.LEDMode> ledModeSupplier;
+  private Supplier<Boolean> activeSupplier = () -> false;
 
   public boolean useBrightnessSupplier = false;
   public DoubleSupplier brightnessSupplier;
@@ -20,70 +20,54 @@ public class LEDStream {
 
   private double expirationTime = -1;
   private boolean timedActive = false;
+  private boolean active = false;
 
-  // Creates the builder format.
-  private LEDStream(LEDStreamBuilder builder) {
-    this.name = builder.name;
-    this.priority = builder.priority;
-    this.ledModeSupplier = builder.ledModeSupplier;
-    this.activeSupplier = builder.activeSupplier;
+  // Builder Methods
+  public LEDStream withName(String name) {
+    this.name = name;
+    return this;
   }
 
-  public static class LEDStreamBuilder {
+  public LEDStream withPriority(int priority) {
+    this.priority = priority;
+    return this;
+  }
 
-    // Mandatory
-    private final String name;
-    private final int priority;
-    private final Supplier<Constants.LEDMode> ledModeSupplier;
+  public LEDStream withLEDModeSupplier(Supplier<Constants.LEDMode> ledModeSupplier) {
+    this.ledModeSupplier = ledModeSupplier;
+    return this;
+  }
 
-    // Optional
-    private Supplier<Boolean> activeSupplier = () -> false;
+  public LEDStream withActiveSupplier(Supplier<Boolean> activeSupplier) {
+    this.activeSupplier = activeSupplier;
+    return this;
+  }
 
-    private DoubleSupplier brightnessSupplier;
-    private boolean useBrightnessSupplier = false;
+  public LEDStream withBrightnessSupplier(DoubleSupplier brightnessSupplier) {
+    this.brightnessSupplier = brightnessSupplier;
+    this.useBrightnessSupplier = true;
+    return this;
+  }
 
-    private DoubleSupplier framerateSupplier;
-    private boolean useFramerateSupplier = false;
-
-    // Mandatory
-    public LEDStreamBuilder(
-        String name, int priority, Supplier<Constants.LEDMode> ledModeSupplier) {
-      this.name = name;
-      this.priority = priority;
-      this.ledModeSupplier = ledModeSupplier;
-    }
-
-    // Optional
-    public LEDStreamBuilder withActiveSupplier(Supplier<Boolean> activeSupplier) {
-      this.activeSupplier = activeSupplier;
-      return this;
-    }
-
-    public LEDStreamBuilder withBrightnessSupplier(DoubleSupplier brightnessSupplier) {
-      this.brightnessSupplier = brightnessSupplier;
-      this.useBrightnessSupplier = true;
-      return this;
-    }
-
-    public LEDStreamBuilder withFramerateSupplier(DoubleSupplier framerateSupplier) {
-      this.framerateSupplier = framerateSupplier;
-      this.useFramerateSupplier = true;
-      return this;
-    }
-
-    // Build method to create the LEDStream
-    public LEDStream build() {
-      return new LEDStream(this);
-    }
+  public LEDStream withFramerateSupplier(DoubleSupplier framerateSupplier) {
+    this.framerateSupplier = framerateSupplier;
+    this.useFramerateSupplier = true;
+    return this;
   }
 
   /**
    * Runs this stream for a fixed number of seconds. This effectively acts as a new condition for
-   * the LEDStream, instead of checking the activeSupplier it checks if the timer has expired or not
+   * the LEDStream, instead of checking the activeSupplier it checks if the timer has expired or
+   * not.
    */
   public void runForSeconds(double seconds) {
     expirationTime = Timer.getFPGATimestamp() + seconds;
     timedActive = true;
+  }
+
+  // Runs this stream indefinately.
+  public void run() {
+    active = true;
   }
 
   private boolean isExpired() {
@@ -100,6 +84,10 @@ public class LEDStream {
         return false;
       }
       return true;
+
+      // When running indefinitely, active state is based on the active variable
+    } else if (active) {
+      return true;
     }
 
     // Otherwise actually use the condition
@@ -112,5 +100,6 @@ public class LEDStream {
 
   public void forceOff() {
     timedActive = false;
+    active = false;
   }
 }
