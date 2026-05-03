@@ -5,12 +5,10 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.GeomUtil;
-import frc.robot.util.LoggedTunableNumber;
 import frc.robot.util.PolynomialRegression;
 import frc.robot.util.TimestampedVisionUpdate;
 import java.io.IOException;
@@ -27,13 +25,19 @@ public class VisionSubsystem extends SubsystemBase {
 
   private static String LOGGING_KEY_PREFIX = "Photon/Camera ";
 
+  // extra margin around field perimeter for discarding vision results
   private static final double FIELD_BORDER_MARGIN = 0.5;
-  private static final Pose3d[] CAMERA_POSES = CameraPoses.poses;
 
   private final PhotonCamera[] cameras;
-  /* For shooting vs. path following in auto */
-  private static final double STD_DEV_SCALAR_SHOOTING = 1;
-  private static final double THETA_STD_DEV_COEFFICIENT_SHOOTING = 0.075;
+  private static final Pose3d[] CAMERA_POSES = CameraPoses.poses;
+
+  // overall scalar on vision trust
+  private static double stdDevScalar = 1;
+
+  // multitag std dev scalar, applies when multi tag
+  private static final double MULTITAG_STD_DEV_SCALAR = 0.075;
+
+  // distance -> standard deviation X/Y
   private static final PolynomialRegression XY_STD_DEV_MODEL =
       new PolynomialRegression(
           new double[] {
@@ -42,6 +46,8 @@ public class VisionSubsystem extends SubsystemBase {
           },
           new double[] {0.005, 0.0135, 0.016, 0.028, 0.0815, 2.4, 3.62, 5.7, 5.9, 5.3, 20.0, 25.0},
           2);
+
+  // distance -> standard deviation ROTATION
   private static final PolynomialRegression THETA_STD_DEV_MODEL =
       new PolynomialRegression(
           new double[] {
@@ -59,7 +65,7 @@ public class VisionSubsystem extends SubsystemBase {
   private Supplier<Pose2d> poseSupplier = Pose2d::new;
 
   /**
-   * Creates a new VisionSubsystem with the specified cameras.
+   * Creates a new VisionSubsystem with the specified PhotonCameras.
    *
    * @param cameras The PhotonVision cameras to use for AprilTag detection
    * @throws IOException If the field layout cannot be loaded
@@ -92,7 +98,7 @@ public class VisionSubsystem extends SubsystemBase {
     Pose2d currentPose = poseSupplier.get();
     visionUpdates = new ArrayList<>();
 
-    double singleTagAdjustment = DriverStation.isAutonomous() ? 0.75 : 1.6;
+    double singleTagAdjustment = 1.0;
     if (Constants.TUNING_MODE) SingleTagAdjustment.updateLoggedTagAdjustments();
 
     // Loop through all the cameras
@@ -129,6 +135,7 @@ public class VisionSubsystem extends SubsystemBase {
       double timestamp = unprocessedResult.getTimestampSeconds();
       Logger.recordOutput(LOGGING_KEY_PREFIX + instanceIndex + " Timestamp", timestamp);
 
+      // multiple tags detected or not
       boolean shouldUseMultiTag = unprocessedResult.getMultiTagResult().isPresent();
 
       if (shouldUseMultiTag) {
@@ -154,12 +161,14 @@ public class VisionSubsystem extends SubsystemBase {
         // If not using multitag, disambiguate and then use
         PhotonTrackedTarget target = unprocessedResult.targets.get(0);
 
+        // discard apriltags that don't exist on the field
         if (aprilTagFieldLayout.getTagPose(target.getFiducialId()).isEmpty()) {
           continue;
         }
 
         Pose3d tagPos = aprilTagFieldLayout.getTagPose(target.getFiducialId()).get();
 
+        // transform camera pose by the origin-to-cam transform so the origin is the robot origin
         Pose3d cameraPose0 = tagPos.transformBy(target.getBestCameraToTarget().inverse());
         Pose3d cameraPose1 = tagPos.transformBy(target.getAlternateCameraToTarget().inverse());
         Pose2d robotPose0 =
@@ -214,31 +223,34 @@ public class VisionSubsystem extends SubsystemBase {
       double thetaStdDev;
 
       if (shouldUseMultiTag) {
+        // use default multitag std dev
         xyStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
         thetaStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
       } else {
+        // use polynomial model
         xyStdDev = XY_STD_DEV_MODEL.predict(avgDistance);
         thetaStdDev = THETA_STD_DEV_MODEL.predict(avgDistance);
       }
 
+      // add results to the vision updates
       if (shouldUseMultiTag) {
         visionUpdates.add(
             new TimestampedVisionUpdate(
                 robotPose,
                 timestamp,
                 VecBuilder.fill(
-                    STD_DEV_SCALAR_SHOOTING * THETA_STD_DEV_COEFFICIENT_SHOOTING * xyStdDev,
-                    STD_DEV_SCALAR_SHOOTING * THETA_STD_DEV_COEFFICIENT_SHOOTING * xyStdDev,
-                    STD_DEV_SCALAR_SHOOTING * THETA_STD_DEV_COEFFICIENT_SHOOTING * thetaStdDev)));
+                    stdDevScalar * MULTITAG_STD_DEV_SCALAR * xyStdDev,
+                    stdDevScalar * MULTITAG_STD_DEV_SCALAR * xyStdDev,
+                    stdDevScalar * MULTITAG_STD_DEV_SCALAR * thetaStdDev)));
       } else {
         visionUpdates.add(
             new TimestampedVisionUpdate(
                 robotPose,
                 timestamp,
                 VecBuilder.fill(
-                    singleTagAdjustment * xyStdDev * STD_DEV_SCALAR_SHOOTING,
-                    singleTagAdjustment * xyStdDev * STD_DEV_SCALAR_SHOOTING,
-                    singleTagAdjustment * thetaStdDev * STD_DEV_SCALAR_SHOOTING)));
+                    singleTagAdjustment * xyStdDev * stdDevScalar,
+                    singleTagAdjustment * xyStdDev * stdDevScalar,
+                    singleTagAdjustment * thetaStdDev * stdDevScalar)));
 
         Logger.recordOutput("VisionData/" + instanceIndex, robotPose);
         Logger.recordOutput("Photon/Tags Used " + instanceIndex, tagPose3ds.size());
@@ -247,5 +259,10 @@ public class VisionSubsystem extends SubsystemBase {
 
     // Apply all vision updates to pose estimator
     visionConsumer.accept(visionUpdates);
+  }
+
+  /** Updates the standard deviation scalar, use when changing how much to trust vision entirely */
+  public void updateStdDevScalar(double newScalar) {
+    stdDevScalar = newScalar;
   }
 }
