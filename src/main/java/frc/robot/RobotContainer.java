@@ -156,11 +156,53 @@ public class RobotContainer {
     driver.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Temporary button bindings for testing LEDs
-    driver.y().onTrue(new LEDCommand(led, new LEDStream.LEDStreamBuilder("buttonY", 5, () -> Constants.LEDMode.RAINBOW).withActiveSupplier(() -> true).build(), 5));
-    driver.b().onTrue(new LEDCommand(led, new LEDStream.LEDStreamBuilder("buttonB", 4, () -> Constants.LEDMode.ACTIVE).withActiveSupplier(() -> true).build(), 7));
-    driver.a().onTrue(new LEDCommand(led, new LEDStream.LEDStreamBuilder("buttonA", 3, () -> Constants.LEDMode.AUTO).withActiveSupplier(() -> true).build(), 8));
-    driver.rightBumper().onTrue(new LEDCommand(led, new LEDStream.LEDStreamBuilder("buttonRightBumper", 2, () -> Constants.LEDMode.CLOSE_TO_NEXT_SHIFT).withActiveSupplier(() -> true).build(), 10));
-    driver.leftBumper().onTrue(new LEDCommand(led, new LEDStream.LEDStreamBuilder("buttonLeftBumper", 1, () -> Constants.LEDMode.DISABLED).withActiveSupplier(() -> true).build(), 3));
+    driver
+        .y()
+        .onTrue(
+            new LEDCommand(
+                led,
+                new LEDStream.LEDStreamBuilder("buttonY", 5, () -> Constants.LEDMode.RAINBOW)
+                    .withActiveSupplier(() -> true)
+                    .build(),
+                5));
+    driver
+        .b()
+        .onTrue(
+            new LEDCommand(
+                led,
+                new LEDStream.LEDStreamBuilder("buttonB", 4, () -> Constants.LEDMode.ACTIVE)
+                    .withActiveSupplier(() -> true)
+                    .build(),
+                7));
+    driver
+        .a()
+        .onTrue(
+            new LEDCommand(
+                led,
+                new LEDStream.LEDStreamBuilder("buttonA", 3, () -> Constants.LEDMode.AUTO)
+                    .withActiveSupplier(() -> true)
+                    .build(),
+                8));
+    driver
+        .rightBumper()
+        .onTrue(
+            new LEDCommand(
+                led,
+                new LEDStream.LEDStreamBuilder(
+                        "buttonRightBumper", 2, () -> Constants.LEDMode.CLOSE_TO_NEXT_SHIFT)
+                    .withActiveSupplier(() -> true)
+                    .build(),
+                10));
+    driver
+        .leftBumper()
+        .onTrue(
+            new LEDCommand(
+                led,
+                new LEDStream.LEDStreamBuilder(
+                        "buttonLeftBumper", 1, () -> Constants.LEDMode.DISABLED)
+                    .withActiveSupplier(() -> true)
+                    .build(),
+                3));
   }
 
   /**
