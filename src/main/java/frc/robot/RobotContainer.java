@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.LEDCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.leds.LEDStream;
@@ -155,61 +156,11 @@ public class RobotContainer {
     driver.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Temporary button bindings for testing LEDs
-    driver
-        .y()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    led.addStream(
-                        new LEDStream.LEDStreamBuilder(
-                                "buttonY", 5, () -> Constants.LEDMode.RAINBOW)
-                            .withActiveSupplier(() -> true)
-                            .build()),
-                led));
-    driver
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    led.addStream(
-                        new LEDStream.LEDStreamBuilder("buttonB", 4, () -> Constants.LEDMode.ACTIVE)
-                            .withActiveSupplier(() -> true)
-                            .build()),
-                led));
-    driver
-        .a()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    led.addStream(
-                        new LEDStream.LEDStreamBuilder("buttonA", 3, () -> Constants.LEDMode.AUTO)
-                            .withActiveSupplier(() -> true)
-                            .build()),
-                led));
-    driver
-        .rightTrigger()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    led.addStream(
-                        new LEDStream.LEDStreamBuilder(
-                                "buttonRightTrigger",
-                                2,
-                                () -> Constants.LEDMode.CLOSE_TO_NEXT_SHIFT)
-                            .withActiveSupplier(() -> true)
-                            .build()),
-                led));
-    driver
-        .leftTrigger()
-        .onTrue(
-            Commands.runOnce(
-                () ->
-                    led.addStream(
-                        new LEDStream.LEDStreamBuilder(
-                                "buttonLeftTrigger", 1, () -> Constants.LEDMode.DISABLED)
-                            .withActiveSupplier(() -> true)
-                            .build()),
-                led));
+    driver.y().onTrue(new LEDCommand(led, new LEDStream.LEDStreamBuilder("buttonY", 5, () -> Constants.LEDMode.RAINBOW).withActiveSupplier(() -> true).build(), 5));
+    driver.b().onTrue(new LEDCommand(led, new LEDStream.LEDStreamBuilder("buttonB", 4, () -> Constants.LEDMode.ACTIVE).withActiveSupplier(() -> true).build(), 7));
+    driver.a().onTrue(new LEDCommand(led, new LEDStream.LEDStreamBuilder("buttonA", 3, () -> Constants.LEDMode.AUTO).withActiveSupplier(() -> true).build(), 8));
+    driver.rightBumper().onTrue(new LEDCommand(led, new LEDStream.LEDStreamBuilder("buttonRightBumper", 2, () -> Constants.LEDMode.CLOSE_TO_NEXT_SHIFT).withActiveSupplier(() -> true).build(), 10));
+    driver.leftBumper().onTrue(new LEDCommand(led, new LEDStream.LEDStreamBuilder("buttonLeftBumper", 1, () -> Constants.LEDMode.DISABLED).withActiveSupplier(() -> true).build(), 3));
   }
 
   /**
