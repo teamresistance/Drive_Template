@@ -29,7 +29,7 @@ public class VisionSimPhoton implements VisionIOPhoton {
 
   private static final int CAM_RES_WIDTH = 1280;
   private static final int CAM_RES_HEIGHT = 800;
-  private static final double CAM_DIAG_FOV_DEG = 166.0;
+  private static final double CAM_DIAG_FOV_DEG = 75.0;
   private static final double CAM_AVG_LATENCY_MS = 30.0;
   private static final double CAM_LATENCY_STD_DEV_MS = 5.0;
   private static final double CAM_FPS = 60.0;
@@ -63,7 +63,7 @@ public class VisionSimPhoton implements VisionIOPhoton {
           AprilTagFieldLayout.loadFromResource(AprilTagFields.k2026RebuiltWelded.m_resourceFile);
       visionSim.addAprilTags(aprilTagFieldLayout);
     } catch (IOException e) {
-      Logger.recordOutput("VisionSim/FieldLayoutLoadError", e.getMessage());
+      Logger.recordOutput("Photon/FieldLayoutLoadError", e.getMessage());
     }
 
     SimCameraProperties camProps = buildCameraProperties();
@@ -113,16 +113,19 @@ public class VisionSimPhoton implements VisionIOPhoton {
 
       PhotonPipelineResult result = unprocessedResults.get(unprocessedResults.size() - 1);
 
-      Logger.recordOutput("VisionSim/Camera" + instanceIndex + "/HasTargets", result.hasTargets());
+      Logger.recordOutput("Photon/Camera" + instanceIndex + "/HasTargets", result.hasTargets());
 
       if (!result.hasTargets()) {
-        Logger.recordOutput("VisionSim/Tags Used " + instanceIndex, 0);
+        Logger.recordOutput("Photon/Tags Used " + instanceIndex, 0);
+        Logger.recordOutput("Photon/Camera Pose " + instanceIndex, new Pose3d());
+        Logger.recordOutput("Photon/Camera" + instanceIndex + "/TagPoses", new Pose3d[0]);
         continue;
       }
 
       double timestamp = result.getTimestampSeconds();
       boolean shouldUseMultiTag = result.getMultiTagResult().isPresent();
 
+      Logger.recordOutput("Photon/UsingMultitag " + instanceIndex, shouldUseMultiTag);
       if (shouldUseMultiTag) {
         var multiTagResult = result.getMultiTagResult().get();
         cameraPose = GeomUtil.transform3dToPose3d(multiTagResult.estimatedPose.best);
@@ -136,8 +139,8 @@ public class VisionSimPhoton implements VisionIOPhoton {
         }
 
         Logger.recordOutput(
-            "VisionSim/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
-        Logger.recordOutput("VisionSim/Camera Pose (Multi tag) " + instanceIndex, cameraPose);
+            "Photon/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
+        Logger.recordOutput("Photon/Camera Pose " + instanceIndex, cameraPose);
       } else {
         PhotonTrackedTarget target = result.targets.get(0);
 
@@ -171,7 +174,8 @@ public class VisionSimPhoton implements VisionIOPhoton {
 
         tagPose3ds.add(tagPos);
         Logger.recordOutput(
-            "VisionSim/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
+            "Photon/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
+        Logger.recordOutput("Photon/Camera Pose " + instanceIndex, cameraPose);
       }
 
       if (robotPose == null) continue;
@@ -224,8 +228,8 @@ public class VisionSimPhoton implements VisionIOPhoton {
                     xyStdDev * stdDevScalar, xyStdDev * stdDevScalar, thetaStdDev * stdDevScalar)));
       }
 
-      Logger.recordOutput("VisionSim/Data/" + instanceIndex, robotPose);
-      Logger.recordOutput("VisionSim/Tags Used " + instanceIndex, tagPose3ds.size());
+      Logger.recordOutput("Photon/Data/" + instanceIndex, robotPose);
+      Logger.recordOutput("Photon/Tags Used " + instanceIndex, tagPose3ds.size());
     }
 
     visionConsumer.accept(visionUpdates);

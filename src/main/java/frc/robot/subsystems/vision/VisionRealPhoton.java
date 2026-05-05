@@ -104,6 +104,8 @@ public class VisionRealPhoton implements VisionIOPhoton {
       // Continue if the camera doesn't have any targets
       if (!unprocessedResult.hasTargets()) {
         Logger.recordOutput("Photon/Tags Used " + instanceIndex, 0);
+        Logger.recordOutput("Photon/Camera Pose " + instanceIndex, new Pose3d());
+        Logger.recordOutput("Photon/Camera" + instanceIndex + "/TagPoses", new Pose3d[0]);
         continue;
       }
 
@@ -112,6 +114,7 @@ public class VisionRealPhoton implements VisionIOPhoton {
 
       // multiple tags detected or not
       boolean shouldUseMultiTag = unprocessedResult.getMultiTagResult().isPresent();
+      Logger.recordOutput("Photon/UsingMultitag " + instanceIndex, shouldUseMultiTag);
 
       if (shouldUseMultiTag) {
         // If multitag, use directly
@@ -131,7 +134,7 @@ public class VisionRealPhoton implements VisionIOPhoton {
           }
         }
 
-        Logger.recordOutput("Photon/Camera Pose (Multi tag) " + instanceIndex, cameraPose);
+        Logger.recordOutput("Photon/Camera Pose " + instanceIndex, cameraPose);
         Logger.recordOutput(
             "VisionSim/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
       } else {
@@ -174,7 +177,7 @@ public class VisionRealPhoton implements VisionIOPhoton {
         tagPose3ds.add(tagPos);
 
         singleTagAdjustment = SingleTagAdjustment.getAdjustmentForTag(target.getFiducialId());
-        Logger.recordOutput("Photon/Camera Pose (Single Tag) " + instanceIndex, cameraPose);
+        Logger.recordOutput("Photon/Camera Pose " + instanceIndex, cameraPose);
         Logger.recordOutput(
             "VisionSim/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
       }
