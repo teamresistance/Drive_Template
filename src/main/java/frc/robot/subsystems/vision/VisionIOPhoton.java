@@ -33,6 +33,8 @@ public interface VisionIOPhoton extends Subsystem {
   double MULTITAG_STD_DEV_SCALAR = 0.075;
   double stdDevScalarDefault = 1.0;
 
+  String LOGGING_KEY_PREFIX = "Photon/Camera ";
+
   /**
    * Sets the data interfaces used to integrate vision measurements into the pose estimator.
    *

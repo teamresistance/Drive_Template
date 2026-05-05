@@ -21,8 +21,6 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionRealPhoton implements VisionIOPhoton {
 
-  private static String LOGGING_KEY_PREFIX = "Photon/Camera ";
-
   // extra margin around field perimeter for discarding vision results
   private static final double FIELD_BORDER_MARGIN = 0.5;
 
@@ -68,8 +66,10 @@ public class VisionRealPhoton implements VisionIOPhoton {
     this.visionConsumer = visionConsumer;
   }
 
+  // MAKE SURE SIM AND REAL METHODS MATCH WHEN CHANGING!
   @Override
   public void periodic() {
+
     Pose2d currentPose = poseSupplier.get();
     visionUpdates = new ArrayList<>();
 
@@ -134,6 +134,8 @@ public class VisionRealPhoton implements VisionIOPhoton {
           }
         }
 
+        Logger.recordOutput(
+            "Photon/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
         Logger.recordOutput("Photon/Camera Pose " + instanceIndex, cameraPose);
         Logger.recordOutput(
             "VisionSim/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
@@ -179,7 +181,7 @@ public class VisionRealPhoton implements VisionIOPhoton {
         singleTagAdjustment = SingleTagAdjustment.getAdjustmentForTag(target.getFiducialId());
         Logger.recordOutput("Photon/Camera Pose " + instanceIndex, cameraPose);
         Logger.recordOutput(
-            "VisionSim/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
+            "Photon/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
       }
 
       if (robotPose == null) {
@@ -204,15 +206,17 @@ public class VisionRealPhoton implements VisionIOPhoton {
       double xyStdDev;
       double thetaStdDev;
 
-      if (shouldUseMultiTag) {
-        // use default multitag std dev
-        xyStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
-        thetaStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
-      } else {
-        // use polynomial model
-        xyStdDev = XY_STD_DEV_MODEL.predict(avgDistance);
-        thetaStdDev = THETA_STD_DEV_MODEL.predict(avgDistance);
-      }
+      //      if (shouldUseMultiTag) {
+      //        // use default multitag std dev
+      //        xyStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
+      //        thetaStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
+      //      } else {
+      //        // use polynomial model
+      //        xyStdDev = XY_STD_DEV_MODEL.predict(avgDistance);
+      //        thetaStdDev = THETA_STD_DEV_MODEL.predict(avgDistance);
+      //      }
+      xyStdDev = XY_STD_DEV_MODEL.predict(avgDistance);
+      thetaStdDev = THETA_STD_DEV_MODEL.predict(avgDistance);
 
       // add results to the vision updates
       if (shouldUseMultiTag) {
