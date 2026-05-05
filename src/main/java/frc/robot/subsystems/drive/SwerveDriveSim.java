@@ -72,9 +72,9 @@ public class SwerveDriveSim implements SwerveDriveIO {
   public void periodic() {
     driveSimulation.periodic();
     SimulatedArena.getInstance().simulationPeriodic();
-    field2d.setRobotPose(getPose());
-    field2d.getObject("odometry").setPose(getPose());
-    Logger.recordOutput("Drive/Robot Pose", getPose());
+    field2d.setRobotPose(driveSimulation.getOdometryEstimatedPose());
+    SmartDashboard.putData("Field2d", field2d);
+    Logger.recordOutput("DriveSIM/Actual Pose", getPose());
   }
 
   @Override
