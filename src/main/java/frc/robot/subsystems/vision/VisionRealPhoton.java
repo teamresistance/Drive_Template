@@ -6,10 +6,8 @@ import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.util.GeomUtil;
-import frc.robot.util.PolynomialRegression;
 import frc.robot.util.TimestampedVisionUpdate;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,7 +19,7 @@ import org.photonvision.PhotonCamera;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-public class VisionSubsystem extends SubsystemBase {
+public class VisionRealPhoton implements VisionIOPhoton {
 
   private static String LOGGING_KEY_PREFIX = "Photon/Camera ";
 
@@ -32,32 +30,7 @@ public class VisionSubsystem extends SubsystemBase {
   private static final Pose3d[] CAMERA_POSES = CameraPoses.poses;
 
   // overall scalar on vision trust
-  private static double stdDevScalar = 1;
-
-  // multitag std dev scalar, applies when multi tag
-  private static final double MULTITAG_STD_DEV_SCALAR = 0.075;
-
-  // distance -> standard deviation X/Y
-  private static final PolynomialRegression XY_STD_DEV_MODEL =
-      new PolynomialRegression(
-          new double[] {
-            0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358, 2.758358,
-            3.223358, 4.093358, 4.726358, 6.0
-          },
-          new double[] {0.005, 0.0135, 0.016, 0.028, 0.0815, 2.4, 3.62, 5.7, 5.9, 5.3, 20.0, 25.0},
-          2);
-
-  // distance -> standard deviation ROTATION
-  private static final PolynomialRegression THETA_STD_DEV_MODEL =
-      new PolynomialRegression(
-          new double[] {
-            0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358, 2.758358,
-            3.223358, 4.093358, 4.726358, 6
-          },
-          new double[] {
-            0.008, 0.027, 0.015, 0.044, 0.04, 0.078, 0.089, 2.027, 3.459, 4.629, 6.068, 13.0
-          },
-          1);
+  private static double stdDevScalar = stdDevScalarDefault;
 
   AprilTagFieldLayout aprilTagFieldLayout;
   private Consumer<List<TimestampedVisionUpdate>> visionConsumer = x -> {};
@@ -70,7 +43,8 @@ public class VisionSubsystem extends SubsystemBase {
    * @param cameras The PhotonVision cameras to use for AprilTag detection
    * @throws IOException If the field layout cannot be loaded
    */
-  public VisionSubsystem(PhotonCamera... cameras) throws IOException {
+  public VisionRealPhoton(PhotonCamera... cameras) throws IOException {
+    register();
     Logger.recordOutput("Vision/CameraPoses", CAMERA_POSES);
     this.cameras = cameras;
     try {
@@ -87,6 +61,7 @@ public class VisionSubsystem extends SubsystemBase {
    * @param poseSupplier Supplier that provides the current robot pose
    * @param visionConsumer Consumer that accepts vision measurement updates
    */
+  @Override
   public void setDataInterfaces(
       Supplier<Pose2d> poseSupplier, Consumer<List<TimestampedVisionUpdate>> visionConsumer) {
     this.poseSupplier = poseSupplier;
@@ -157,6 +132,8 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         Logger.recordOutput("Photon/Camera Pose (Multi tag) " + instanceIndex, cameraPose);
+        Logger.recordOutput(
+            "VisionSim/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
       } else {
         // If not using multitag, disambiguate and then use
         PhotonTrackedTarget target = unprocessedResult.targets.get(0);
@@ -198,6 +175,8 @@ public class VisionSubsystem extends SubsystemBase {
 
         singleTagAdjustment = SingleTagAdjustment.getAdjustmentForTag(target.getFiducialId());
         Logger.recordOutput("Photon/Camera Pose (Single Tag) " + instanceIndex, cameraPose);
+        Logger.recordOutput(
+            "VisionSim/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
       }
 
       if (robotPose == null) {
@@ -262,6 +241,7 @@ public class VisionSubsystem extends SubsystemBase {
   }
 
   /** Updates the standard deviation scalar, use when changing how much to trust vision entirely */
+  @Override
   public void updateStdDevScalar(double newScalar) {
     stdDevScalar = newScalar;
   }

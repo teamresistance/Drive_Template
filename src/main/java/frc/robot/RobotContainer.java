@@ -29,14 +29,13 @@ public class RobotContainer {
   // photon vision cameras
   public final PhotonCamera frontLeftCamera = new PhotonCamera("front-left");
   public final PhotonCamera frontRightCamera = new PhotonCamera("front-right");
-  public final PhotonCamera backLeftCamera = new PhotonCamera("back_left");
-  public final PhotonCamera backRightCamera = new PhotonCamera("back_right");
-  public final PhotonCamera frontCenterCamera = new PhotonCamera("front-center");
+  public final PhotonCamera backLeftCamera = new PhotonCamera("back-left");
+  public final PhotonCamera backRightCamera = new PhotonCamera("back-right");
   private final Alert cameraFailureAlert;
 
   // Subsystems
   private final SwerveDriveIO drive;
-  private VisionSubsystem vision;
+  private VisionIOPhoton vision;
   private final LEDSubsystem leds;
 
   // Controller
@@ -112,15 +111,17 @@ public class RobotContainer {
   }
 
   /** Returns the AprilTag vision system with PhotonVision cameras. */
-  private VisionSubsystem configureAprilTagVision() {
+  private VisionIOPhoton configureAprilTagVision() {
     try {
       vision =
-          new VisionSubsystem(
-              frontLeftCamera,
-              frontRightCamera,
-              backRightCamera,
-              frontCenterCamera,
-              backLeftCamera);
+          switch (Constants.CURRENT_MODE) {
+            case REAL, REPLAY ->
+                new VisionRealPhoton(
+                    frontLeftCamera, frontRightCamera, backRightCamera, backLeftCamera);
+            case SIM ->
+                new VisionSimPhoton(
+                    frontLeftCamera, frontRightCamera, backRightCamera, backLeftCamera);
+          };
       vision.setDataInterfaces(drive::getPose, drive::addAutoVisionMeasurement);
 
     } catch (IOException e) {
