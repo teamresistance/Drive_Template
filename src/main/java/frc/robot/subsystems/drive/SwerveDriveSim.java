@@ -11,6 +11,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -36,7 +37,8 @@ public class SwerveDriveSim implements SwerveDriveIO {
         DriveTrainSimulationConfig.Default()
             .withGyro(COTS.ofPigeon2())
             .withSwerveModule(
-                COTS.ofSwerveX2(DCMotor.getKrakenX60(1), DCMotor.getKrakenX60(1), WHEEL_COF, 3, 10))
+                COTS.ofSwerveX2(
+                    DCMotor.getKrakenX60Foc(1), DCMotor.getKrakenX44Foc(1), WHEEL_COF, 2, 10))
             .withTrackLengthTrackWidth(Inches.of(22), Inches.of(22))
             .withBumperSize(Inches.of(34.5), Inches.of(34.5))
             .withRobotMass(Pounds.of(115))
@@ -44,7 +46,12 @@ public class SwerveDriveSim implements SwerveDriveIO {
 
     driveSimulation =
         new SelfControlledSwerveDriveSimulation(
-            new SwerveDriveSimulation(simulationConfig, new Pose2d(1, 1, new Rotation2d())));
+            new SwerveDriveSimulation(
+                simulationConfig,
+                new Pose2d(
+                    Units.inchesToMeters(651.2 / 2),
+                    Units.inchesToMeters(317.5 / 2),
+                    new Rotation2d())));
 
     SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation.getDriveTrainSimulation());
     SimulatedArena.getInstance().resetFieldForAuto();
