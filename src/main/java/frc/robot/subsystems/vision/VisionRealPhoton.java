@@ -206,17 +206,17 @@ public class VisionRealPhoton implements VisionIOPhoton {
       double xyStdDev;
       double thetaStdDev;
 
-      //      if (shouldUseMultiTag) {
-      //        // use default multitag std dev
-      //        xyStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
-      //        thetaStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
-      //      } else {
-      //        // use polynomial model
-      //        xyStdDev = XY_STD_DEV_MODEL.predict(avgDistance);
-      //        thetaStdDev = THETA_STD_DEV_MODEL.predict(avgDistance);
-      //      }
-      xyStdDev = XY_STD_DEV_MODEL.predict(avgDistance);
-      thetaStdDev = THETA_STD_DEV_MODEL.predict(avgDistance);
+      if (shouldUseMultiTag) {
+        // use default multitag std dev
+        xyStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
+        thetaStdDev = Math.pow(avgDistance, 2.0) / tagPose3ds.size();
+      } else {
+        // use polynomial model
+        xyStdDev = XY_STD_DEV_MODEL.predict(avgDistance);
+        thetaStdDev = THETA_STD_DEV_MODEL.predict(avgDistance);
+      }
+      //      xyStdDev = XY_STD_DEV_MODEL.predict(avgDistance);
+      //      thetaStdDev = THETA_STD_DEV_MODEL.predict(avgDistance);
 
       // add results to the vision updates
       if (shouldUseMultiTag) {
