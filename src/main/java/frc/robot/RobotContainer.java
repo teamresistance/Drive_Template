@@ -26,7 +26,7 @@ import org.photonvision.PhotonCamera;
  */
 public class RobotContainer {
 
-  // photon vision cameras
+  // photon visionPhoton cameras
   public final PhotonCamera frontLeftCamera = new PhotonCamera("front-left");
   public final PhotonCamera frontRightCamera = new PhotonCamera("front-right");
   public final PhotonCamera backLeftCamera = new PhotonCamera("back-left");
@@ -35,7 +35,8 @@ public class RobotContainer {
 
   // Subsystems
   private final SwerveDriveIO drive;
-  private VisionIOPhoton vision;
+  private VisionIOPhoton visionPhoton;
+  private VisionIOLimelight visionLimelight;
   private final LEDSubsystem leds;
 
   // Controller
@@ -48,6 +49,7 @@ public class RobotContainer {
 
     // instantiate any special subsystems that do not get differing implementations here
     leds = new LEDSubsystem();
+    visionLimelight = new VisionRealLimelight("insert-names-here");
 
     switch (Constants.CURRENT_MODE) {
       case REAL: // REAL robot, instantiate real implementations
@@ -74,7 +76,7 @@ public class RobotContainer {
                 new ModuleIO() {});
     }
 
-    vision = configureAprilTagVision();
+    visionPhoton = configureAprilTagVision();
     configureNamedCommands();
     autoChooser = configureAutos();
     configureButtonBindings();
@@ -110,10 +112,10 @@ public class RobotContainer {
     return chooser;
   }
 
-  /** Returns the AprilTag vision system with PhotonVision cameras. */
+  /** Returns the AprilTag visionPhoton system with PhotonVision cameras. */
   private VisionIOPhoton configureAprilTagVision() {
     try {
-      vision =
+      visionPhoton =
           switch (Constants.CURRENT_MODE) {
             case REAL, REPLAY ->
                 new VisionRealPhoton(
@@ -122,7 +124,7 @@ public class RobotContainer {
                 new VisionSimPhoton(
                     frontLeftCamera, frontRightCamera, backRightCamera, backLeftCamera);
           };
-      vision.setDataInterfaces(drive::getPose, drive::addAutoVisionMeasurement);
+      visionPhoton.setDataInterfaces(drive::getPose, drive::addAutoVisionMeasurement);
 
     } catch (IOException e) {
       if (cameraFailureAlert != null) {
@@ -132,7 +134,7 @@ public class RobotContainer {
       Logger.recordOutput("Vision/FieldLayoutLoadError", e.getMessage());
       return null; // Return null on failure for proper error handling
     }
-    return vision;
+    return visionPhoton;
   }
 
   /** All triggers and button bindings for driver control go here. */
