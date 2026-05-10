@@ -26,7 +26,6 @@ import org.littletonrobotics.junction.Logger;
  */
 public class VisionRealLimelight implements VisionIOLimelight {
 
-  private static final double FIELD_BORDER_MARGIN = 0.5; // metres
   private static double stdDevScalar = STD_DEV_SCALAR_DEFAULT;
 
   private final String[] cameraNames;
@@ -87,23 +86,23 @@ public class VisionRealLimelight implements VisionIOLimelight {
       PoseEstimate estimate = chooseBestEstimate(mt1, mt2);
 
       if (estimate == null || estimate.tagCount == 0) {
-        Logger.recordOutput(LOGGING_KEY_PREFIX + instanceIndex + " Has Targets", false);
+        Logger.recordOutput(LOGGING_KEY_PREFIX_LL + instanceIndex + " Has Targets", false);
         Logger.recordOutput("Limelight/Tags Used " + instanceIndex, 0);
         Logger.recordOutput("Limelight/Camera Pose " + instanceIndex, new Pose3d());
         Logger.recordOutput("Limelight/Camera" + instanceIndex + "/TagPoses", new Pose3d[0]);
         continue;
       }
 
-      Logger.recordOutput(LOGGING_KEY_PREFIX + instanceIndex + " Has Targets", true);
+      Logger.recordOutput(LOGGING_KEY_PREFIX_LL + instanceIndex + " Has Targets", true);
 
       boolean shouldUseMultiTag = estimate.tagCount > 1;
       Logger.recordOutput("Limelight/UsingMultitag " + instanceIndex, shouldUseMultiTag);
 
       double timestamp = estimate.timestampSeconds;
-      Logger.recordOutput(LOGGING_KEY_PREFIX + instanceIndex + " Timestamp", timestamp);
+      Logger.recordOutput(LOGGING_KEY_PREFIX_LL + instanceIndex + " Timestamp", timestamp);
 
       Pose2d robotPose = estimate.pose;
-      Logger.recordOutput(LOGGING_KEY_PREFIX + instanceIndex + "LatencyMS", estimate.latency);
+      Logger.recordOutput(LOGGING_KEY_PREFIX_LL + instanceIndex + "LatencyMS", estimate.latency);
 
       List<Pose3d> tagPose3ds = new ArrayList<>();
       for (var rawFiducial : estimate.rawFiducials) {

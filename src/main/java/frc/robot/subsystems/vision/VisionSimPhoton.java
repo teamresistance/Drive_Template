@@ -27,7 +27,6 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 public class VisionSimPhoton implements VisionIOPhoton {
 
   private static final String VISION_SIM_LABEL = "PhotonVisionSim";
-  private static final double FIELD_BORDER_MARGIN = 0.5;
 
   private static final int CAM_RES_WIDTH = 1280;
   private static final int CAM_RES_HEIGHT = 800;
@@ -38,7 +37,7 @@ public class VisionSimPhoton implements VisionIOPhoton {
   private static final double CAM_CALIB_ERROR_AVG = 0.25;
   private static final double CAM_CALIB_ERROR_STD_DEV = 0.08;
 
-  private static double stdDevScalar = stdDevScalarDefault;
+  private static double stdDevScalar = STD_DEV_SCALAR_DEFAULT;
 
   private static final Pose3d[] CAMERA_POSES = CameraPoses.poses;
 
@@ -125,9 +124,9 @@ public class VisionSimPhoton implements VisionIOPhoton {
           unprocessedResults.get(unprocessedResults.size() - 1);
 
       Logger.recordOutput(
-          LOGGING_KEY_PREFIX + instanceIndex + " Has Targets", unprocessedResult.hasTargets());
+          LOGGING_KEY_PREFIX_PV + instanceIndex + " Has Targets", unprocessedResult.hasTargets());
       Logger.recordOutput(
-          LOGGING_KEY_PREFIX + instanceIndex + "LatencyMS",
+          LOGGING_KEY_PREFIX_PV + instanceIndex + "LatencyMS",
           unprocessedResult.metadata.getLatencyMillis());
 
       Logger.recordOutput(
@@ -144,7 +143,7 @@ public class VisionSimPhoton implements VisionIOPhoton {
       }
 
       double timestamp = unprocessedResult.getTimestampSeconds();
-      Logger.recordOutput(LOGGING_KEY_PREFIX + instanceIndex + " Timestamp", timestamp);
+      Logger.recordOutput(LOGGING_KEY_PREFIX_PV + instanceIndex + " Timestamp", timestamp);
 
       // multiple tags detected or not
       boolean shouldUseMultiTag = unprocessedResult.getMultiTagResult().isPresent();

@@ -21,14 +21,11 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class VisionRealPhoton implements VisionIOPhoton {
 
-  // extra margin around field perimeter for discarding vision results
-  private static final double FIELD_BORDER_MARGIN = 0.5;
-
   private final PhotonCamera[] cameras;
   private static final Pose3d[] CAMERA_POSES = CameraPoses.poses;
 
   // overall scalar on vision trust
-  private static double stdDevScalar = stdDevScalarDefault;
+  private static double stdDevScalar = STD_DEV_SCALAR_DEFAULT;
 
   AprilTagFieldLayout aprilTagFieldLayout;
   private Consumer<List<TimestampedVisionUpdate>> visionConsumer = x -> {};
@@ -91,9 +88,9 @@ public class VisionRealPhoton implements VisionIOPhoton {
           unprocessedResults.get(unprocessedResults.size() - 1);
 
       Logger.recordOutput(
-          LOGGING_KEY_PREFIX + instanceIndex + " Has Targets", unprocessedResult.hasTargets());
+          LOGGING_KEY_PREFIX_PV + instanceIndex + " Has Targets", unprocessedResult.hasTargets());
       Logger.recordOutput(
-          LOGGING_KEY_PREFIX + instanceIndex + "LatencyMS",
+          LOGGING_KEY_PREFIX_PV + instanceIndex + "LatencyMS",
           unprocessedResult.metadata.getLatencyMillis());
 
       Logger.recordOutput(
@@ -110,7 +107,7 @@ public class VisionRealPhoton implements VisionIOPhoton {
       }
 
       double timestamp = unprocessedResult.getTimestampSeconds();
-      Logger.recordOutput(LOGGING_KEY_PREFIX + instanceIndex + " Timestamp", timestamp);
+      Logger.recordOutput(LOGGING_KEY_PREFIX_PV + instanceIndex + " Timestamp", timestamp);
 
       // multiple tags detected or not
       boolean shouldUseMultiTag = unprocessedResult.getMultiTagResult().isPresent();
