@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.ContinuousLEDCommand;
+import frc.robot.commands.ContinuousVisionStdDevCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.LEDSubsystem;
@@ -77,6 +78,7 @@ public class RobotContainer {
     }
 
     visionPhoton = configureAprilTagVision();
+    visionLimelight.setDataInterfaces(drive::getPose, drive::addAutoVisionMeasurement);
     configureNamedCommands();
     autoChooser = configureAutos();
     configureButtonBindings();
@@ -151,6 +153,10 @@ public class RobotContainer {
   /** Any triggers for driver feedback (i.e. rumbles, the LED command, etc.) should go here. */
   private void configureFeedback() {
     leds.setDefaultCommand(new ContinuousLEDCommand(leds, drive));
+
+    // this can be either vision or limelight, it just needs to be something's default
+    visionPhoton.setDefaultCommand(
+        new ContinuousVisionStdDevCommand(drive, visionPhoton, visionLimelight));
   }
 
   /** This method should return the Command to run during auto scheduled by Robot.java */

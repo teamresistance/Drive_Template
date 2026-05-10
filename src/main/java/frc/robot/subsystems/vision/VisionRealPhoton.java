@@ -134,8 +134,6 @@ public class VisionRealPhoton implements VisionIOPhoton {
         Logger.recordOutput(
             "Photon/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
         Logger.recordOutput("Photon/Camera Pose " + instanceIndex, cameraPose);
-        Logger.recordOutput(
-            "VisionSim/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
       } else {
         // If not using multitag, disambiguate and then use
         PhotonTrackedTarget target = unprocessedResult.targets.get(0);
@@ -235,7 +233,7 @@ public class VisionRealPhoton implements VisionIOPhoton {
                     singleTagAdjustment * xyStdDev * stdDevScalar,
                     singleTagAdjustment * thetaStdDev * stdDevScalar)));
 
-        Logger.recordOutput("VisionData/" + instanceIndex, robotPose);
+        Logger.recordOutput(LOGGING_KEY_PREFIX_PV + "/Data" + instanceIndex, robotPose);
         Logger.recordOutput("Photon/Tags Used " + instanceIndex, tagPose3ds.size());
       }
     }

@@ -174,7 +174,7 @@ public class VisionRealLimelight implements VisionIOLimelight {
                     singleTagAdjustment * xyStdDev * stdDevScalar,
                     singleTagAdjustment * thetaStdDev * stdDevScalar)));
 
-        Logger.recordOutput("VisionData/" + instanceIndex, robotPose);
+        Logger.recordOutput(LOGGING_KEY_PREFIX_LL + "/Data" + instanceIndex, robotPose);
         Logger.recordOutput("Limelight/Tags Used " + instanceIndex, tagPose3ds.size());
       }
     }

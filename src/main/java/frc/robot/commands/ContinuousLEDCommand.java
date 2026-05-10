@@ -39,5 +39,13 @@ public class ContinuousLEDCommand extends Command {
                 / TunerConstants.kSpeedAt12Volts.magnitude(),
             0.25,
             1.0));
+
+    // TODO: any other LED animations should be decided in this method body
+
+  }
+
+  @Override
+  public boolean runsWhenDisabled() {
+    return true;
   }
 }
