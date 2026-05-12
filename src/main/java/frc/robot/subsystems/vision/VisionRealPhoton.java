@@ -210,8 +210,6 @@ public class VisionRealPhoton implements VisionIOPhoton {
         xyStdDev = XY_STD_DEV_MODEL.predict(avgDistance);
         thetaStdDev = THETA_STD_DEV_MODEL.predict(avgDistance);
       }
-      //      xyStdDev = XY_STD_DEV_MODEL.predict(avgDistance);
-      //      thetaStdDev = THETA_STD_DEV_MODEL.predict(avgDistance);
 
       // add results to the vision updates
       if (shouldUseMultiTag) {
