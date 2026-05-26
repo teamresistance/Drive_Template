@@ -74,6 +74,7 @@ jobs:
     name: CodeQL scan
     runs-on: ubuntu-latest
     permissions:
+      actions: read
       checks: write
       contents: read
       pull-requests: write
