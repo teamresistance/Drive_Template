@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.ContinuousLEDCommand;
+import frc.robot.commands.ContinuousVisionStdDevCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.LEDSubsystem;
@@ -29,14 +30,14 @@ public class RobotContainer {
   // photon vision cameras
   public final PhotonCamera frontLeftCamera = new PhotonCamera("front-left");
   public final PhotonCamera frontRightCamera = new PhotonCamera("front-right");
-  public final PhotonCamera backLeftCamera = new PhotonCamera("back_left");
-  public final PhotonCamera backRightCamera = new PhotonCamera("back_right");
-  public final PhotonCamera frontCenterCamera = new PhotonCamera("front-center");
+  public final PhotonCamera backLeftCamera = new PhotonCamera("back-left");
+  public final PhotonCamera backRightCamera = new PhotonCamera("back-right");
   private final Alert cameraFailureAlert;
 
   // Subsystems
   private final SwerveDriveIO drive;
-  private VisionSubsystem vision;
+  private VisionIOPhoton visionPhoton;
+  private VisionIOLimelight visionLimelight;
   private final LEDSubsystem leds;
 
   // Controller
@@ -49,6 +50,7 @@ public class RobotContainer {
 
     // instantiate any special subsystems that do not get differing implementations here
     leds = new LEDSubsystem();
+    visionLimelight = new VisionRealLimelight("insert-names-here");
 
     switch (Constants.CURRENT_MODE) {
       case REAL: // REAL robot, instantiate real implementations
@@ -75,7 +77,8 @@ public class RobotContainer {
                 new ModuleIO() {});
     }
 
-    vision = configureAprilTagVision();
+    visionPhoton = configureAprilTagVision();
+    visionLimelight.setDataInterfaces(drive::getPose, drive::addAutoVisionMeasurement);
     configureNamedCommands();
     autoChooser = configureAutos();
     configureButtonBindings();
@@ -111,17 +114,19 @@ public class RobotContainer {
     return chooser;
   }
 
-  /** Returns the AprilTag vision system with PhotonVision cameras. */
-  private VisionSubsystem configureAprilTagVision() {
+  /** Returns the AprilTag visionPhoton system with PhotonVision cameras. */
+  private VisionIOPhoton configureAprilTagVision() {
     try {
-      vision =
-          new VisionSubsystem(
-              frontLeftCamera,
-              frontRightCamera,
-              backRightCamera,
-              frontCenterCamera,
-              backLeftCamera);
-      vision.setDataInterfaces(drive::getPose, drive::addAutoVisionMeasurement);
+      visionPhoton =
+          switch (Constants.CURRENT_MODE) {
+            case REAL, REPLAY ->
+                new VisionRealPhoton(
+                    frontLeftCamera, frontRightCamera, backRightCamera, backLeftCamera);
+            case SIM ->
+                new VisionSimPhoton(
+                    frontLeftCamera, frontRightCamera, backRightCamera, backLeftCamera);
+          };
+      visionPhoton.setDataInterfaces(drive::getPose, drive::addAutoVisionMeasurement);
 
     } catch (IOException e) {
       if (cameraFailureAlert != null) {
@@ -131,7 +136,7 @@ public class RobotContainer {
       Logger.recordOutput("Vision/FieldLayoutLoadError", e.getMessage());
       return null; // Return null on failure for proper error handling
     }
-    return vision;
+    return visionPhoton;
   }
 
   /** All triggers and button bindings for driver control go here. */
@@ -148,6 +153,10 @@ public class RobotContainer {
   /** Any triggers for driver feedback (i.e. rumbles, the LED command, etc.) should go here. */
   private void configureFeedback() {
     leds.setDefaultCommand(new ContinuousLEDCommand(leds, drive));
+
+    // this can be either vision or limelight, it just needs to be something's default
+    visionPhoton.setDefaultCommand(
+        new ContinuousVisionStdDevCommand(drive, visionPhoton, visionLimelight));
   }
 
   /** This method should return the Command to run during auto scheduled by Robot.java */

@@ -26,16 +26,26 @@ public class ContinuousLEDCommand extends Command {
   @Override
   public void execute() {
 
+    // default disabled solid color
     if (DriverStation.isDisabled()) {
       leds.setModeDisabled();
       return;
     }
 
+    // increasingly bright rainbow based on speed
     leds.setModeEnabled(
         MathUtil.clamp(
             drive.getVelocity().getTranslation().getNorm()
                 / TunerConstants.kSpeedAt12Volts.magnitude(),
             0.25,
             1.0));
+
+    // TODO: any other LED animations should be decided in this method body
+
+  }
+
+  @Override
+  public boolean runsWhenDisabled() {
+    return true;
   }
 }
