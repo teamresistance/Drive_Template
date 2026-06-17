@@ -50,7 +50,7 @@ public class RobotContainer {
 
     // instantiate any special subsystems that do not get differing implementations here
     leds = new LEDSubsystem();
-    visionLimelight = new VisionRealLimelight("insert-names-here");
+    visionLimelight = new VisionRealLimelight("limelight");
 
     switch (Constants.CURRENT_MODE) {
       case REAL: // REAL robot, instantiate real implementations

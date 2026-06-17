@@ -36,8 +36,8 @@ public class ContinuousLEDCommand extends Command {
     leds.setModeEnabled(
         MathUtil.clamp(
             drive.getVelocity().getTranslation().getNorm()
-                / TunerConstants.kSpeedAt12Volts.magnitude(),
-            0.25,
+                / (TunerConstants.kSpeedAt12Volts.magnitude() / 2),
+            0.1,
             1.0));
 
     // TODO: any other LED animations should be decided in this method body

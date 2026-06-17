@@ -23,7 +23,7 @@ public class LEDSubsystem extends SubsystemBase {
   private final SolidColor ANIM_DISABLED =
       new SolidColor(LED_START_INDEX, LED_END_INDEX).withColor(new RGBWColor(255 / 2, 165 / 2, 0));
   private final RainbowAnimation ANIM_ENABLED =
-      new RainbowAnimation(LED_START_INDEX, LED_END_INDEX);
+      new RainbowAnimation(LED_START_INDEX, LED_END_INDEX).withFrameRate(50);
 
   public void setModeDisabled() {
     if (ledMode == Constants.LED_MODE.DISABLED) return;

@@ -3,10 +3,7 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.geometry.*;
 import frc.robot.Constants;
 import frc.robot.util.GeomUtil;
 import frc.robot.util.LimelightHelpers;
@@ -53,7 +50,7 @@ public class VisionRealLimelight implements VisionIOLimelight {
     // MegaTag pipeline can compute field-relative poses for us.
     for (int i = 0; i < cameraNames.length; i++) {
       setCameraRobotTransform(cameraNames[i], CAMERA_POSES[i]);
-      LimelightHelpers.SetIMUMode(cameraNames[i], 4); // fused IMU and robot yaw
+      LimelightHelpers.SetIMUMode(cameraNames[i], 3); // ignore ll yaw
     }
   }
 
@@ -67,6 +64,7 @@ public class VisionRealLimelight implements VisionIOLimelight {
   // MAKE SURE SIM AND REAL METHODS MATCH WHEN CHANGING!
   @Override
   public void periodic() {
+
     Pose2d currentPose = poseSupplier.get();
     List<TimestampedVisionUpdate> visionUpdates = new ArrayList<>();
 
@@ -78,7 +76,7 @@ public class VisionRealLimelight implements VisionIOLimelight {
 
       // push yaw to limelight
       LimelightHelpers.SetRobotOrientation(
-          name, currentPose.getRotation().getDegrees(), 0, 0, 0, 0, 0);
+          name, poseSupplier.get().getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
       // decide which to use
       PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
