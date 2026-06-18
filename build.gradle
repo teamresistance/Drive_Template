@@ -3,7 +3,6 @@ plugins {
     id "jacoco"
     id "com.peterabeles.gversion" version "1.11.0"
     id "com.diffplug.spotless" version "8.6.0"
-    id "org.sonarqube" version "7.3.1.8318"
     id "edu.wpi.first.GradleRIO" version "2026.2.1"
 }
 
@@ -231,20 +230,5 @@ spotless {
         trimTrailingWhitespace()
         leadingTabsToSpaces(2)
         endWithNewline()
-    }
-}
-
-// SonarQube configuration
-sonar {
-    properties {
-        property "sonar.projectKey", "teamresistance_Drive_Template"
-        property "sonar.organization", "teamresistance"
-        property "sonar.host.url", "https://sonarcloud.io"
-        property "sonar.sources", "src"
-        property "sonar.exclusions", "src/main/java/frc/robot/generated/**"
-        property "sonar.coverage.exclusions", "**/*"
-        property "sonar.issue.ignore.multicriteria", "e1"
-        property "sonar.issue.ignore.multicriteria.e1.ruleKey", "java:S1186"
-        property "sonar.issue.ignore.multicriteria.e1.resourceKey", "**/*.java"
     }
 }
