@@ -1,0 +1,9 @@
+name: "CodeQL config"
+
+# Restrict analysis to the source tree (mirrors the former sonar.sources).
+paths:
+  - src
+
+# Skip auto-generated code (mirrors the former sonar.exclusions).
+paths-ignore:
+  - src/main/java/frc/robot/generated

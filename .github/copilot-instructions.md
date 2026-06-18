@@ -12,7 +12,7 @@
 - **Vision**: PhotonVision + Studica NavX
 - **Build Tool**: Gradle with Spotless formatting
 - **Testing**: JUnit
-- **Code Quality**: SonarQube integration
+- **Code Quality**: CodeQL analysis
 
 ### Package Structure
 
@@ -144,12 +144,12 @@
 - PhotonVision for AprilTag detection
 - Studica NavX for additional IMU support
 - Jama for linear algebra operations
-- SonarQube integration for code quality analysis
+- CodeQL for code quality and security analysis
 
 ## Build System & Quality Tools
 
 - **Spotless**: Automatic code formatting (Google Java Format, JSON, Markdown)
-- **SonarQube**: Code quality analysis integrated with SonarCloud
+- **CodeQL**: Code quality and security analysis via GitHub code scanning
 - **Event Deployment**: Auto-commit on event branches during deployment
 - **JUnit 5**: Unit testing framework
 - **Gradle Tasks**: `./gradlew spotlessApply`, `./gradlew build`, `./gradlew deploy`
