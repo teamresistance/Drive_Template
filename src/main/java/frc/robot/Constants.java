@@ -4,15 +4,11 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.ctre.phoenix6.CANBus;
 import com.pathplanner.lib.path.PathConstraints;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.generated.TunerConstants;
 
-/**
- * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
- * on a roboRIO. Change the value of "simMode" to switch between "sim" (physics sim) and "replay"
- * (log replay from a file).
- */
 public final class Constants {
 
   public static boolean TEST_MODE = false;
@@ -24,6 +20,9 @@ public final class Constants {
           5.0,
           Units.degreesToRadians(540),
           Units.degreesToRadians(400));
+
+  public static final Translation2d CENTER_OF_ROTATION =
+      new Translation2d(Units.inchesToMeters(0), Units.inchesToMeters(0));
 
   public static final int LED_CANDLE_ID = 40;
   public static final CANBus LED_CANDLE_BUS = new CANBus("drive");
