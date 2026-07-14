@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.controls.EmptyAnimation;
 import com.ctre.phoenix6.controls.RainbowAnimation;
 import com.ctre.phoenix6.controls.SolidColor;
 import com.ctre.phoenix6.hardware.CANdle;
@@ -34,11 +35,15 @@ public class LEDSubsystem extends SubsystemBase {
 
   public void setModeEnabled(double brightness) {
     if (Math.abs(brightness - lastBrightness) < 0.05) return;
+    // if (ledMode == Constants.LED_MODE.ENABLED) return;
+    // TODO: This should be uncommented for LED cases unless the animation can change, like here.
 
-    ledMode = Constants.LED_MODE.ENABLED;
     lastBrightness = brightness;
-    Logger.recordOutput("LEDS/Enabled/Brightness", brightness);
+    candle.setControl(new EmptyAnimation(0));
     candle.setControl(ANIM_ENABLED.withBrightness(brightness));
+    ledMode = Constants.LED_MODE.ENABLED;
+    Logger.recordOutput("LEDS/Enabled/Brightness", brightness);
+    Logger.recordOutput("LEDS/Mode", ledMode);
   }
 
   @Override
