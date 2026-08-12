@@ -64,7 +64,13 @@ public class RobotContainer {
         break;
 
       case SIM: // SIMULATED robot, instantiate sim implementations
-        drive = new SwerveDriveSim();
+        drive =
+            new SwerveDriveReal(
+                new GyroIO() {},
+                new ModuleIOSim(TunerConstants.FrontLeft),
+                new ModuleIOSim(TunerConstants.FrontRight),
+                new ModuleIOSim(TunerConstants.BackLeft),
+                new ModuleIOSim(TunerConstants.BackRight));
         break;
 
       default: // REPLAYED robot, instantiate blank implementations or default ones
