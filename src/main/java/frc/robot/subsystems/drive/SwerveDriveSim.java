@@ -27,8 +27,8 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.littletonrobotics.junction.Logger;
 
 /**
- * NOT TO BE USED! This still exists in-case MapleSim is deemed super useful in the future. Otherwise,
- * use the CTRE sim.
+ * NOT TO BE USED! This still exists in-case MapleSim is deemed super useful in the future.
+ * Otherwise, use the CTRE sim.
  */
 public class SwerveDriveSim implements SwerveDriveIO {
 
