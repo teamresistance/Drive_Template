@@ -19,7 +19,7 @@ public class TunerConstants {
   // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
   private static final Slot0Configs steerGains =
       new Slot0Configs()
-          .withKP(100)
+          .withKP(100) // less force on steering motor, less jerky
           .withKI(0)
           .withKD(0.5)
           .withKS(0.1)
@@ -51,7 +51,7 @@ public class TunerConstants {
 
   // The stator current at which the wheels start to slip;
   // This needs to be tuned to your individual robot
-  private static final Current kSlipCurrent = Amps.of(120);
+  private static final Current kSlipCurrent = Amps.of(100);
 
   // Initial configs for the drive and steer motors and the azimuth encoder; these cannot be null.
   // Some configs will be overwritten; check the `with*InitialConfigs()` API documentation.
@@ -84,13 +84,13 @@ public class TunerConstants {
 
   // Theoretical free speed (m/s) at 12 V applied output;
   // This needs to be tuned to your individual robot
-  public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.67);
+  public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(4.76);
 
   // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
   // This may need to be tuned to your individual robot
   private static final double kCoupleRatio = 5.4;
 
-  private static final double kDriveGearRatio = 6.821052631578947;
+  private static final double kDriveGearRatio = 6.82;
   private static final double kSteerGearRatio = 12.1;
   private static final Distance kWheelRadius = Inches.of(2);
 
@@ -153,7 +153,7 @@ public class TunerConstants {
   private static final int kFrontRightDriveMotorId = 22;
   private static final int kFrontRightSteerMotorId = 23;
   private static final int kFrontRightEncoderId = 31;
-  private static final Angle kFrontRightEncoderOffset = Rotations.of(0.12548828125);
+  private static final Angle kFrontRightEncoderOffset = Rotations.of(-0.443604);
   private static final boolean kFrontRightSteerMotorInverted = true;
   private static final boolean kFrontRightEncoderInverted = false;
 

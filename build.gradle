@@ -150,18 +150,20 @@ tasks.withType(JavaCompile) {
 // Create version file
 project.compileJava.dependsOn(createVersionFile)
 gversion {
-    srcDir       = "src/main/java/"
+    srcDir = "src/main/java/"
     classPackage = "frc.robot"
-    className    = "BuildConstants"
-    dateFormat   = "yyyy-MM-dd HH:mm:ss z"
-    timeZone     = "America/New_York"
-    indent       = "  "
+    className = "BuildConstants"
+    dateFormat = "yyyy-MM-dd HH:mm:ss z"
+    timeZone = "America/New_York"
+    indent = "  "
 }
 
 // Create commit with working changes on event branches
 task(eventDeploy) {
     doLast {
-        if (project.gradle.startParameter.taskNames.any({ it.toLowerCase().contains("deploy") })) {
+        if (project.gradle.startParameter.taskNames.any({
+            it.toLowerCase().contains("deploy")
+        })) {
             def branchPrefix = "event"
             def branch = 'git branch --show-current'.execute().text.trim()
             def commitMessage = "Update at '${new Date().toString()}'"

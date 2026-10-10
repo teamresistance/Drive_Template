@@ -50,7 +50,7 @@ public class VisionRealLimelight implements VisionIOLimelight {
     // MegaTag pipeline can compute field-relative poses for us.
     for (int i = 0; i < cameraNames.length; i++) {
       setCameraRobotTransform(cameraNames[i], CAMERA_POSES[i]);
-      LimelightHelpers.SetIMUMode(cameraNames[i], 3); // ignore ll yaw
+      LimelightHelpers.SetIMUMode(cameraNames[i], 3);
     }
   }
 
@@ -211,7 +211,7 @@ public class VisionRealLimelight implements VisionIOLimelight {
     LimelightHelpers.setCameraPose_RobotSpace(
         name,
         t.getX(),
-        t.getY(),
+        -t.getY(),
         t.getZ(),
         Math.toDegrees(r.getX()),
         Math.toDegrees(r.getY()),
