@@ -62,7 +62,7 @@ public class VisionSimPhoton implements VisionIOPhoton {
 
     try {
       aprilTagFieldLayout =
-        AprilTagFieldLayout.loadFromResource(AprilTagFields.k2026RebuiltWelded.m_resourceFile);
+          AprilTagFieldLayout.loadFromResource(AprilTagFields.k2026RebuiltWelded.m_resourceFile);
       visionSim.addAprilTags(aprilTagFieldLayout);
     } catch (IOException e) {
       Logger.recordOutput("Photon/FieldLayoutLoadError", e.getMessage());
@@ -79,7 +79,7 @@ public class VisionSimPhoton implements VisionIOPhoton {
       cameraSims[i].enableProcessedStream(false);
 
       Transform3d robotToCamera =
-        new Transform3d(CAMERA_POSES[i].getTranslation(), CAMERA_POSES[i].getRotation());
+          new Transform3d(CAMERA_POSES[i].getTranslation(), CAMERA_POSES[i].getRotation());
 
       visionSim.addCamera(cameraSims[i], robotToCamera);
     }
@@ -93,7 +93,7 @@ public class VisionSimPhoton implements VisionIOPhoton {
    */
   @Override
   public void setDataInterfaces(
-    Supplier<Pose2d> poseSupplier, Consumer<List<TimestampedVisionUpdate>> visionConsumer) {
+      Supplier<Pose2d> poseSupplier, Consumer<List<TimestampedVisionUpdate>> visionConsumer) {
     this.poseSupplier = poseSupplier;
     this.visionConsumer = visionConsumer;
   }
@@ -121,18 +121,18 @@ public class VisionSimPhoton implements VisionIOPhoton {
       if (unprocessedResults.isEmpty()) continue;
 
       PhotonPipelineResult unprocessedResult =
-        unprocessedResults.get(unprocessedResults.size() - 1);
+          unprocessedResults.get(unprocessedResults.size() - 1);
 
       Logger.recordOutput(
-        LOGGING_KEY_PREFIX_PV + instanceIndex + " Has Targets", unprocessedResult.hasTargets());
+          LOGGING_KEY_PREFIX_PV + instanceIndex + " Has Targets", unprocessedResult.hasTargets());
       Logger.recordOutput(
-        LOGGING_KEY_PREFIX_PV + instanceIndex + "LatencyMS",
-        unprocessedResult.metadata.getLatencyMillis());
+          LOGGING_KEY_PREFIX_PV + instanceIndex + "LatencyMS",
+          unprocessedResult.metadata.getLatencyMillis());
 
       Logger.recordOutput(
-        "Photon/Raw Camera Data " + instanceIndex,
-        SmartDashboard.getRaw(
-          "photonvision/" + cameras[instanceIndex].getName() + "/rawBytes", new byte[] {}));
+          "Photon/Raw Camera Data " + instanceIndex,
+          SmartDashboard.getRaw(
+              "photonvision/" + cameras[instanceIndex].getName() + "/rawBytes", new byte[] {}));
 
       // Continue if the camera doesn't have any targets
       if (!unprocessedResult.hasTargets()) {
@@ -156,9 +156,9 @@ public class VisionSimPhoton implements VisionIOPhoton {
         cameraPose = GeomUtil.transform3dToPose3d(result.estimatedPose.best);
 
         robotPose =
-          cameraPose
-            .transformBy(GeomUtil.pose3dToTransform3d(CAMERA_POSES[instanceIndex]).inverse())
-            .toPose2d();
+            cameraPose
+                .transformBy(GeomUtil.pose3dToTransform3d(CAMERA_POSES[instanceIndex]).inverse())
+                .toPose2d();
 
         // Populate array of tag poses with tags used
         for (int id : result.fiducialIDsUsed) {
@@ -168,7 +168,7 @@ public class VisionSimPhoton implements VisionIOPhoton {
         }
 
         Logger.recordOutput(
-          "Photon/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
+            "Photon/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
         Logger.recordOutput("Photon/Camera Pose " + instanceIndex, cameraPose);
       } else {
         // If not using multitag, disambiguate and then use
@@ -185,21 +185,21 @@ public class VisionSimPhoton implements VisionIOPhoton {
         Pose3d cameraPose0 = tagPos.transformBy(target.getBestCameraToTarget().inverse());
         Pose3d cameraPose1 = tagPos.transformBy(target.getAlternateCameraToTarget().inverse());
         Pose2d robotPose0 =
-          cameraPose0
-            .transformBy(GeomUtil.pose3dToTransform3d(CAMERA_POSES[instanceIndex]).inverse())
-            .toPose2d();
+            cameraPose0
+                .transformBy(GeomUtil.pose3dToTransform3d(CAMERA_POSES[instanceIndex]).inverse())
+                .toPose2d();
         Pose2d robotPose1 =
-          cameraPose1
-            .transformBy(GeomUtil.pose3dToTransform3d(CAMERA_POSES[instanceIndex]).inverse())
-            .toPose2d();
+            cameraPose1
+                .transformBy(GeomUtil.pose3dToTransform3d(CAMERA_POSES[instanceIndex]).inverse())
+                .toPose2d();
 
         double projectionError = target.getPoseAmbiguity();
 
         // Select a pose using projection error and current rotation
         if (projectionError < 0.15
-          || (Math.abs(robotPose0.getRotation().minus(currentPose.getRotation()).getRadians())
-          < Math.abs(
-          robotPose1.getRotation().minus(currentPose.getRotation()).getRadians()))) {
+            || (Math.abs(robotPose0.getRotation().minus(currentPose.getRotation()).getRadians())
+                < Math.abs(
+                    robotPose1.getRotation().minus(currentPose.getRotation()).getRadians()))) {
           cameraPose = cameraPose0;
           robotPose = robotPose0;
         } else {
@@ -212,7 +212,7 @@ public class VisionSimPhoton implements VisionIOPhoton {
         singleTagAdjustment = SingleTagAdjustment.getAdjustmentForTag(target.getFiducialId());
         Logger.recordOutput("Photon/Camera Pose " + instanceIndex, cameraPose);
         Logger.recordOutput(
-          "Photon/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
+            "Photon/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
       }
 
       if (robotPose == null) {
@@ -221,9 +221,9 @@ public class VisionSimPhoton implements VisionIOPhoton {
 
       // Move on to next camera if robot pose is off the field
       if (robotPose.getX() < -FIELD_BORDER_MARGIN
-        || robotPose.getX() > aprilTagFieldLayout.getFieldLength() + FIELD_BORDER_MARGIN
-        || robotPose.getY() < -FIELD_BORDER_MARGIN
-        || robotPose.getY() > aprilTagFieldLayout.getFieldWidth() + FIELD_BORDER_MARGIN) {
+          || robotPose.getX() > aprilTagFieldLayout.getFieldLength() + FIELD_BORDER_MARGIN
+          || robotPose.getY() < -FIELD_BORDER_MARGIN
+          || robotPose.getY() > aprilTagFieldLayout.getFieldWidth() + FIELD_BORDER_MARGIN) {
         continue;
       }
 
@@ -250,22 +250,22 @@ public class VisionSimPhoton implements VisionIOPhoton {
       // add results to the vision updates
       if (shouldUseMultiTag) {
         visionUpdates.add(
-          new TimestampedVisionUpdate(
-            robotPose,
-            timestamp,
-            VecBuilder.fill(
-              stdDevScalar * MULTITAG_STD_DEV_SCALAR * xyStdDev,
-              stdDevScalar * MULTITAG_STD_DEV_SCALAR * xyStdDev,
-              stdDevScalar * MULTITAG_STD_DEV_SCALAR * thetaStdDev)));
+            new TimestampedVisionUpdate(
+                robotPose,
+                timestamp,
+                VecBuilder.fill(
+                    stdDevScalar * MULTITAG_STD_DEV_SCALAR * xyStdDev,
+                    stdDevScalar * MULTITAG_STD_DEV_SCALAR * xyStdDev,
+                    stdDevScalar * MULTITAG_STD_DEV_SCALAR * thetaStdDev)));
       } else {
         visionUpdates.add(
-          new TimestampedVisionUpdate(
-            robotPose,
-            timestamp,
-            VecBuilder.fill(
-              singleTagAdjustment * xyStdDev * stdDevScalar,
-              singleTagAdjustment * xyStdDev * stdDevScalar,
-              singleTagAdjustment * thetaStdDev * stdDevScalar)));
+            new TimestampedVisionUpdate(
+                robotPose,
+                timestamp,
+                VecBuilder.fill(
+                    singleTagAdjustment * xyStdDev * stdDevScalar,
+                    singleTagAdjustment * xyStdDev * stdDevScalar,
+                    singleTagAdjustment * thetaStdDev * stdDevScalar)));
 
         Logger.recordOutput(LOGGING_KEY_PREFIX_PV + "/Data" + instanceIndex, robotPose);
         Logger.recordOutput("Photon/Tags Used " + instanceIndex, tagPose3ds.size());

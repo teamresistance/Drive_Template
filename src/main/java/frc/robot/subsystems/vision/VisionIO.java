@@ -11,24 +11,24 @@ import java.util.function.Supplier;
 public interface VisionIO extends Subsystem {
 
   PolynomialRegression XY_STD_DEV_MODEL =
-    new PolynomialRegression(
-      new double[] {
-        0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358, 2.758358,
-        3.223358, 4.093358, 4.726358, 6.0
-      },
-      new double[] {0.005, 0.0135, 0.016, 0.028, 0.0815, 2.4, 3.62, 5.7, 5.9, 5.3, 20.0, 25.0},
-      2);
+      new PolynomialRegression(
+          new double[] {
+            0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358, 2.758358,
+            3.223358, 4.093358, 4.726358, 6.0
+          },
+          new double[] {0.005, 0.0135, 0.016, 0.028, 0.0815, 2.4, 3.62, 5.7, 5.9, 5.3, 20.0, 25.0},
+          2);
 
   PolynomialRegression THETA_STD_DEV_MODEL =
-    new PolynomialRegression(
-      new double[] {
-        0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358, 2.758358,
-        3.223358, 4.093358, 4.726358, 6.0
-      },
-      new double[] {
-        0.008, 0.027, 0.015, 0.044, 0.04, 0.078, 0.089, 2.027, 3.459, 4.629, 6.068, 13.0
-      },
-      1);
+      new PolynomialRegression(
+          new double[] {
+            0.752358, 1.016358, 1.296358, 1.574358, 1.913358, 2.184358, 2.493358, 2.758358,
+            3.223358, 4.093358, 4.726358, 6.0
+          },
+          new double[] {
+            0.008, 0.027, 0.015, 0.044, 0.04, 0.078, 0.089, 2.027, 3.459, 4.629, 6.068, 13.0
+          },
+          1);
 
   double MULTITAG_STD_DEV_SCALAR = 0.075;
   double STD_DEV_SCALAR_DEFAULT = 1.0;
@@ -46,7 +46,7 @@ public interface VisionIO extends Subsystem {
    * @param visionConsumer Consumer that accepts timestamped vision measurement updates
    */
   void setDataInterfaces(
-    Supplier<Pose2d> poseSupplier, Consumer<List<TimestampedVisionUpdate>> visionConsumer);
+      Supplier<Pose2d> poseSupplier, Consumer<List<TimestampedVisionUpdate>> visionConsumer);
 
   /**
    * Updates the global scalar applied to all vision standard deviations. Increase to trust vision
