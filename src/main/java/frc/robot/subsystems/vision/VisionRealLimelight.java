@@ -41,7 +41,7 @@ public class VisionRealLimelight implements VisionIOLimelight {
 
     try {
       aprilTagFieldLayout =
-          AprilTagFieldLayout.loadFromResource(AprilTagFields.k2026RebuiltWelded.m_resourceFile);
+        AprilTagFieldLayout.loadFromResource(AprilTagFields.k2026RebuiltWelded.m_resourceFile);
     } catch (IOException e) {
       Logger.recordOutput("Limelight/FieldLayoutLoadError", e.getMessage());
     }
@@ -50,13 +50,13 @@ public class VisionRealLimelight implements VisionIOLimelight {
     // MegaTag pipeline can compute field-relative poses for us.
     for (int i = 0; i < cameraNames.length; i++) {
       setCameraRobotTransform(cameraNames[i], CAMERA_POSES[i]);
-      LimelightHelpers.SetIMUMode(cameraNames[i], 3); // ignore ll yaw
+      LimelightHelpers.SetIMUMode(cameraNames[i], 3);
     }
   }
 
   @Override
   public void setDataInterfaces(
-      Supplier<Pose2d> poseSupplier, Consumer<List<TimestampedVisionUpdate>> visionConsumer) {
+    Supplier<Pose2d> poseSupplier, Consumer<List<TimestampedVisionUpdate>> visionConsumer) {
     this.poseSupplier = poseSupplier;
     this.visionConsumer = visionConsumer;
   }
@@ -76,7 +76,7 @@ public class VisionRealLimelight implements VisionIOLimelight {
 
       // push yaw to limelight
       LimelightHelpers.SetRobotOrientation(
-          name, poseSupplier.get().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+        name, poseSupplier.get().getRotation().getDegrees(), 0, 0, 0, 0, 0);
 
       // decide which to use
       PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
@@ -112,19 +112,19 @@ public class VisionRealLimelight implements VisionIOLimelight {
 
       // reconstruct camera pose from robot pose + camera offset
       Pose3d cameraPose =
-          new Pose3d(robotPose)
-              .transformBy(GeomUtil.pose3dToTransform3d(CAMERA_POSES[instanceIndex]));
+        new Pose3d(robotPose)
+          .transformBy(GeomUtil.pose3dToTransform3d(CAMERA_POSES[instanceIndex]));
 
       Logger.recordOutput("Limelight/Camera Pose " + instanceIndex, cameraPose);
       Logger.recordOutput(
-          "Limelight/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
+        "Limelight/Camera" + instanceIndex + "/TagPoses", tagPose3ds.toArray(new Pose3d[0]));
 
       // ── Field-border rejection ────────────────────────────────────────────
       if (aprilTagFieldLayout != null
-          && (robotPose.getX() < -FIELD_BORDER_MARGIN
-              || robotPose.getX() > aprilTagFieldLayout.getFieldLength() + FIELD_BORDER_MARGIN
-              || robotPose.getY() < -FIELD_BORDER_MARGIN
-              || robotPose.getY() > aprilTagFieldLayout.getFieldWidth() + FIELD_BORDER_MARGIN)) {
+        && (robotPose.getX() < -FIELD_BORDER_MARGIN
+        || robotPose.getX() > aprilTagFieldLayout.getFieldLength() + FIELD_BORDER_MARGIN
+        || robotPose.getY() < -FIELD_BORDER_MARGIN
+        || robotPose.getY() > aprilTagFieldLayout.getFieldWidth() + FIELD_BORDER_MARGIN)) {
         continue;
       }
 
@@ -135,7 +135,7 @@ public class VisionRealLimelight implements VisionIOLimelight {
 
       // just in case
       double avgDistance =
-          tagPose3ds.isEmpty() ? estimate.avgTagDist : totalDistance / tagPose3ds.size();
+        tagPose3ds.isEmpty() ? estimate.avgTagDist : totalDistance / tagPose3ds.size();
 
       double xyStdDev;
       double thetaStdDev;
@@ -145,9 +145,9 @@ public class VisionRealLimelight implements VisionIOLimelight {
         thetaStdDev = Math.pow(avgDistance, 2.0) / estimate.tagCount;
       } else {
         singleTagAdjustment =
-            estimate.rawFiducials.length > 0
-                ? SingleTagAdjustment.getAdjustmentForTag(estimate.rawFiducials[0].id)
-                : 1.0;
+          estimate.rawFiducials.length > 0
+            ? SingleTagAdjustment.getAdjustmentForTag(estimate.rawFiducials[0].id)
+            : 1.0;
         xyStdDev = XY_STD_DEV_MODEL.predict(avgDistance);
         thetaStdDev = THETA_STD_DEV_MODEL.predict(avgDistance);
       }
@@ -155,22 +155,22 @@ public class VisionRealLimelight implements VisionIOLimelight {
       // ── Add vision update ─────────────────────────────────────────────────
       if (shouldUseMultiTag) {
         visionUpdates.add(
-            new TimestampedVisionUpdate(
-                robotPose,
-                timestamp,
-                VecBuilder.fill(
-                    stdDevScalar * MULTITAG_STD_DEV_SCALAR * xyStdDev,
-                    stdDevScalar * MULTITAG_STD_DEV_SCALAR * xyStdDev,
-                    stdDevScalar * MULTITAG_STD_DEV_SCALAR * thetaStdDev)));
+          new TimestampedVisionUpdate(
+            robotPose,
+            timestamp,
+            VecBuilder.fill(
+              stdDevScalar * MULTITAG_STD_DEV_SCALAR * xyStdDev,
+              stdDevScalar * MULTITAG_STD_DEV_SCALAR * xyStdDev,
+              stdDevScalar * MULTITAG_STD_DEV_SCALAR * thetaStdDev)));
       } else {
         visionUpdates.add(
-            new TimestampedVisionUpdate(
-                robotPose,
-                timestamp,
-                VecBuilder.fill(
-                    singleTagAdjustment * xyStdDev * stdDevScalar,
-                    singleTagAdjustment * xyStdDev * stdDevScalar,
-                    singleTagAdjustment * thetaStdDev * stdDevScalar)));
+          new TimestampedVisionUpdate(
+            robotPose,
+            timestamp,
+            VecBuilder.fill(
+              singleTagAdjustment * xyStdDev * stdDevScalar,
+              singleTagAdjustment * xyStdDev * stdDevScalar,
+              singleTagAdjustment * thetaStdDev * stdDevScalar)));
 
         Logger.recordOutput(LOGGING_KEY_PREFIX_LL + "/Data" + instanceIndex, robotPose);
         Logger.recordOutput("Limelight/Tags Used " + instanceIndex, tagPose3ds.size());
@@ -192,9 +192,9 @@ public class VisionRealLimelight implements VisionIOLimelight {
 
   /** Gives preference to MT2, uses MT1 if MT2 doesn't have a pose */
   private static PoseEstimate chooseBestEstimate(PoseEstimate mt1, PoseEstimate mt2) {
-    if (mt2 != null && mt2.tagCount > 0) return mt2;
-    if (mt1 != null && mt1.tagCount > 0) return mt1;
-    return null;
+        if (mt2 != null && mt2.tagCount > 0) return mt2;
+        if (mt1 != null && mt1.tagCount > 0) return mt1;
+        return null;
   }
 
   /**
@@ -209,12 +209,12 @@ public class VisionRealLimelight implements VisionIOLimelight {
     Translation3d t = cameraPose.getTranslation();
     Rotation3d r = cameraPose.getRotation();
     LimelightHelpers.setCameraPose_RobotSpace(
-        name,
-        t.getX(),
-        t.getY(),
-        t.getZ(),
-        Math.toDegrees(r.getX()),
-        Math.toDegrees(r.getY()),
-        Math.toDegrees(r.getZ()));
+      name,
+      t.getX(),
+      -t.getY(),
+      t.getZ(),
+      Math.toDegrees(r.getX()),
+      Math.toDegrees(r.getY()),
+      Math.toDegrees(r.getZ()));
   }
 }
