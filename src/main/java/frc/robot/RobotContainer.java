@@ -8,11 +8,19 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.ContinuousLEDCommand;
+import frc.robot.commands.ContinuousTurretCommand;
 import frc.robot.commands.ContinuousVisionStdDevCommand;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.HoodSetTargetCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.shooter.hood.HoodIO;
+import frc.robot.subsystems.shooter.hood.HoodReal;
+import frc.robot.subsystems.shooter.hood.HoodSim;
+import frc.robot.subsystems.shooter.turret.TurretIO;
+import frc.robot.subsystems.shooter.turret.TurretReal;
+import frc.robot.subsystems.shooter.turret.TurretSim;
 import frc.robot.subsystems.vision.*;
 import java.io.IOException;
 import org.littletonrobotics.junction.Logger;
@@ -39,6 +47,9 @@ public class RobotContainer {
   private VisionIOPhoton visionPhoton;
   private VisionIOLimelight visionLimelight;
   private final LEDSubsystem leds;
+  // private final IntakeIO intake;
+  private final HoodIO hood;
+  private final TurretIO turret;
 
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
@@ -61,6 +72,9 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+        // intake = new IntakeReal();
+        hood = new HoodReal();
+        turret = new TurretReal();
         break;
 
       case SIM: // SIMULATED robot, instantiate sim implementations
@@ -71,6 +85,9 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+        // intake = new IntakeSim();
+        hood = new HoodSim();
+        turret = new TurretSim();
         break;
 
       default: // REPLAYED robot, instantiate blank implementations or default ones
@@ -81,6 +98,9 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+        // intake = new IntakeReal();
+        hood = new HoodReal();
+        turret = new TurretReal();
     }
 
     visionPhoton = configureAprilTagVision();
@@ -145,15 +165,44 @@ public class RobotContainer {
     return visionPhoton;
   }
 
-  /** All triggers and button bindings for driver control go here. */
+  /** All triggers and ' button bindings for driver control go here. */
   private void configureButtonBindings() {
     // Normal field-relative drive
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive, () -> -driver.getLeftY(), () -> -driver.getLeftX(), () -> -driver.getRightX()));
 
+    // Continuous turret command
+    turret.setDefaultCommand(new ContinuousTurretCommand(turret, drive));
+
     // Switch to X pattern when X button is pressed
     driver.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+
+    // When the left trigger is held, the intake deploys
+    // driver.leftTrigger().onTrue(new IntakeDeployCommand(intake));
+
+    // When the left trigger is released, the intake goes into its "kinda in" position
+    // driver.leftTrigger().onFalse(new IntakeKindaInCommand(intake));
+
+    // When the left bumper is pressed, the intake goes into its fully in position
+    // driver.leftBumper().onTrue(new IntakeFullyInCommand(intake));
+
+    // When the right stick is pressed, the hood angle goes to 13 degrees
+    driver
+        .rightStick()
+        .onTrue(new HoodSetTargetCommand(hood, Constants.SHOOTER_HOOD_MOTOR_START_DEG));
+
+    // When A is pressed, the hood angle goes to 20 degrees
+    driver.a().onTrue(new HoodSetTargetCommand(hood, 20));
+
+    // When X is pressed, the hood angle goes to 30 degrees
+    driver.x().onTrue(new HoodSetTargetCommand(hood, 30));
+
+    // When B is pressed, the hood angle goes to 40 degrees
+    driver.b().onTrue(new HoodSetTargetCommand(hood, 40));
+
+    // When Y is pressed, the hood angle goes to 45 degrees
+    driver.x().onTrue(new HoodSetTargetCommand(hood, Constants.SHOOTER_HOOD_MOTOR_MAX_DEG));
   }
 
   /** Any triggers for driver feedback (i.e. rumbles, the LED command, etc.) should go here. */

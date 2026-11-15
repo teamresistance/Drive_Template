@@ -42,4 +42,25 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  // Intake motor constants
+  public static final double SLAPDOWN_ROTATIONS_TO_DEGREES = 12.0;
+  public static final double ROLLER_RPM = 90;
+  public static final double SLAPDOWN_DEPLOYED = 90;
+  public static final double SLAPDOWN_KINDA_IN = 20;
+  public static final double SLAPDOWN_FULLY_IN = -30;
+  public static final double SLAPDOWN_TOLERANCE = 0.25;
+
+  // Hood motor constants
+  public static final int SHOOTER_HOOD_ID = 12;
+  public static final double SHOOTER_HOOD_MOTOR_START_DEG = 13;
+  public static final double SHOOTER_HOOD_MOTOR_MAX_DEG = 45;
+  public static final double SHOOTER_HOOD_REVS_PER_DEG = (4.0 * (175.0 / 10.0)) / 360.0;
+
+  // Turret motor constants
+  public static final int SHOOTER_TURRET_ID = 13;
+  public static final int SHOOTER_FLYWHEEL_ID_1 = 14;
+  public static final int SHOOTER_FLYWHEEL_ID_2 = 15;
+  public static final double SHOOTER_TURRET_REVS_PER_DEG = (5 * 5 * 3.2) / 360.0;
+  public static final double SHOOTER_TURRET_SAFETY_LIM_DEG = 135;
 }
