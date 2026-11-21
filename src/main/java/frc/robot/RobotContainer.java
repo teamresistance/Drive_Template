@@ -10,9 +10,16 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.ContinuousLEDCommand;
 import frc.robot.commands.ContinuousVisionStdDevCommand;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.HoodCommand;
+import frc.robot.commands.TurretAimCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.hood.HoodIO;
+import frc.robot.subsystems.hood.HoodReal;
+import frc.robot.subsystems.hood.HoodSim;
+import frc.robot.subsystems.turret.TurretIO;
+import frc.robot.subsystems.turret.TurretReal;
 import frc.robot.subsystems.vision.*;
 import java.io.IOException;
 import org.littletonrobotics.junction.Logger;
@@ -39,6 +46,8 @@ public class RobotContainer {
   private VisionIOPhoton visionPhoton;
   private VisionIOLimelight visionLimelight;
   private final LEDSubsystem leds;
+  private HoodIO hood;
+  private final TurretIO turret;
 
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
@@ -51,6 +60,7 @@ public class RobotContainer {
     // instantiate any special subsystems that do not get differing implementations here
     leds = new LEDSubsystem();
     visionLimelight = new VisionRealLimelight("limelight");
+    turret = new TurretReal();
 
     switch (Constants.CURRENT_MODE) {
       case REAL: // REAL robot, instantiate real implementations
@@ -61,6 +71,7 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+        hood = new HoodReal();
         break;
 
       case SIM: // SIMULATED robot, instantiate sim implementations
@@ -71,6 +82,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+        hood = new HoodSim();
         break;
 
       default: // REPLAYED robot, instantiate blank implementations or default ones
@@ -154,6 +166,12 @@ public class RobotContainer {
 
     // Switch to X pattern when X button is pressed
     driver.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    driver.a().onTrue(new HoodCommand(hood, 13));
+    driver.b().onTrue(new HoodCommand(hood, 20));
+    driver.y().onTrue(new HoodCommand(hood, 30));
+    driver.leftBumper().onTrue(new HoodCommand(hood, 40));
+    driver.rightBumper().onTrue(new HoodCommand(hood, 45));
+    turret.setDefaultCommand(new TurretAimCommand(turret, drive));
   }
 
   /** Any triggers for driver feedback (i.e. rumbles, the LED command, etc.) should go here. */
