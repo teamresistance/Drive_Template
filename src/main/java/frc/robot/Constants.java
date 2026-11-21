@@ -42,4 +42,15 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  public static final double SLAP_CONVERSION_TO_ROT = 1.0 / 360 * 30;
+  public static final double MOTOR_CONVERSION_TO_ROLLER = 3.0;
+
+  public static final double SHOOTER_HOOD_REVS_PER_DEG = (4.0 * (175.0 / 10.0)) / 360.0;
+  public static final double SHOOTER_TURRET_REVS_PER_DEG = (5 * 5 * 3.2) / 360.0;
+
+  public static final int SHOOTER_HOOD_ID = 12;
+  public static final int SHOOTER_TURRET_ID = 13;
+  public static final int SHOOTER_FLYWHEEL_ID_1 = 14;
+  public static final int SHOOTER_FLYWHEEL_ID_2 = 15;
 }
