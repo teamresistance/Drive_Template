@@ -123,8 +123,9 @@ public interface SwerveDriveIO extends Subsystem {
                     .Red, // this is correct, model all trajectories for blue side in path planner
         this);
     Pathfinding.setPathfinder(new LocalADStarAK());
-    PathPlannerLogging.setLogActivePathCallback(activePath ->
-        Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0])));
+    PathPlannerLogging.setLogActivePathCallback(
+        activePath ->
+            Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0])));
     PathPlannerLogging.setLogTargetPoseCallback(
         targetPose -> Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
   }

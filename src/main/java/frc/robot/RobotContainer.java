@@ -118,23 +118,24 @@ public class RobotContainer {
         files
             .filter(file -> file.toString().endsWith(".json"))
             .sorted()
-            .forEach(file -> {
-              String name = file.getFileName().toString();
-              String stem = name.substring(0, name.length() - 5);
-              try {
-                Path path = new Path(stem);
-                if (!path.isValid()) {
-                  throw new IllegalArgumentException("BLine path is invalid: " + stem);
-                }
-                Command blineCommand = blineBuilder.withPoseReset(drive::setPose).build(path);
-                blineBuilder.withPoseReset(ignored -> {});
-                chooser.addOption("BLine - " + stem, blineCommand);
-              } catch (RuntimeException e) {
-                Logger.recordOutput("BLine/LoadError/" + stem, e.getMessage());
-                DriverStation.reportError(
-                    "Unable to load BLine path " + stem + ": " + e.getMessage(), false);
-              }
-            });
+            .forEach(
+                file -> {
+                  String name = file.getFileName().toString();
+                  String stem = name.substring(0, name.length() - 5);
+                  try {
+                    Path path = new Path(stem);
+                    if (!path.isValid()) {
+                      throw new IllegalArgumentException("BLine path is invalid: " + stem);
+                    }
+                    Command blineCommand = blineBuilder.withPoseReset(drive::setPose).build(path);
+                    blineBuilder.withPoseReset(ignored -> {});
+                    chooser.addOption("BLine - " + stem, blineCommand);
+                  } catch (RuntimeException e) {
+                    Logger.recordOutput("BLine/LoadError/" + stem, e.getMessage());
+                    DriverStation.reportError(
+                        "Unable to load BLine path " + stem + ": " + e.getMessage(), false);
+                  }
+                });
       } catch (IOException e) {
         Logger.recordOutput("BLine/LoadError", e.getMessage());
         DriverStation.reportError("Unable to list BLine paths: " + e.getMessage(), false);
