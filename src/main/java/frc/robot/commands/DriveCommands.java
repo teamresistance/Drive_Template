@@ -162,11 +162,10 @@ public class DriveCommands {
 
     return Commands.sequence(
         // Reset data
-        Commands.runOnce(
-            () -> {
-              velocitySamples.clear();
-              voltageSamples.clear();
-            }),
+        Commands.runOnce(() -> {
+          velocitySamples.clear();
+          voltageSamples.clear();
+        }),
 
         // Allow modules to orient
         Commands.run(() -> drive.runCharacterization(0.0), drive).withTimeout(FF_START_DELAY),
@@ -185,26 +184,25 @@ public class DriveCommands {
                 drive)
 
             // When cancelled, calculate and print results
-            .finallyDo(
-                () -> {
-                  int n = velocitySamples.size();
-                  double sumX = 0.0;
-                  double sumY = 0.0;
-                  double sumXY = 0.0;
-                  double sumX2 = 0.0;
-                  for (int i = 0; i < n; i++) {
-                    sumX += velocitySamples.get(i);
-                    sumY += voltageSamples.get(i);
-                    sumXY += velocitySamples.get(i) * voltageSamples.get(i);
-                    sumX2 += velocitySamples.get(i) * velocitySamples.get(i);
-                  }
-                  double kS = (sumY * sumX2 - sumX * sumXY) / (n * sumX2 - sumX * sumX);
-                  double kV = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            .finallyDo(() -> {
+              int n = velocitySamples.size();
+              double sumX = 0.0;
+              double sumY = 0.0;
+              double sumXY = 0.0;
+              double sumX2 = 0.0;
+              for (int i = 0; i < n; i++) {
+                sumX += velocitySamples.get(i);
+                sumY += voltageSamples.get(i);
+                sumXY += velocitySamples.get(i) * voltageSamples.get(i);
+                sumX2 += velocitySamples.get(i) * velocitySamples.get(i);
+              }
+              double kS = (sumY * sumX2 - sumX * sumXY) / (n * sumX2 - sumX * sumX);
+              double kV = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
 
-                  Logger.recordOutput("Drive/FF/kS", kS);
-                  Logger.recordOutput("Drive/FF/kV", kV);
-                  Logger.recordOutput("Drive/FF/CharacterizationComplete", true);
-                }));
+              Logger.recordOutput("Drive/FF/kS", kS);
+              Logger.recordOutput("Drive/FF/kV", kV);
+              Logger.recordOutput("Drive/FF/CharacterizationComplete", true);
+            }));
   }
 
   /**
@@ -299,19 +297,17 @@ public class DriveCommands {
                           : drive.getRotation()));
             },
             drive)
-        .beforeStarting(
-            () -> {
-              // Reset PID controllers when the command starts
-              pidX.reset(drive.getPose().getX());
-              pidY.reset(drive.getPose().getY());
-              angleController.reset(drive.getRotation().getRadians());
-            })
-        .until(
-            () ->
-                Math.abs(targetTranslation.getX() - drive.getPose().getX()) < 0.07
-                    && Math.abs(targetTranslation.getY() - drive.getPose().getY()) < 0.07
-                    && Math.abs(targetRotation.minus(drive.getRotation()).getRadians())
-                        < Math.toRadians(5));
+        .beforeStarting(() -> {
+          // Reset PID controllers when the command starts
+          pidX.reset(drive.getPose().getX());
+          pidY.reset(drive.getPose().getY());
+          angleController.reset(drive.getRotation().getRadians());
+        })
+        .until(() ->
+            Math.abs(targetTranslation.getX() - drive.getPose().getX()) < 0.07
+                && Math.abs(targetTranslation.getY() - drive.getPose().getY()) < 0.07
+                && Math.abs(targetRotation.minus(drive.getRotation()).getRadians())
+                    < Math.toRadians(5));
   }
 
   public static Command goToTransformWithPathFinder(
@@ -475,12 +471,11 @@ public class DriveCommands {
             Commands.waitSeconds(1.0),
 
             // Record starting measurement
-            Commands.runOnce(
-                () -> {
-                  state.positions = drive.getWheelRadiusCharacterizationPositions();
-                  state.lastAngle = drive.getRotation();
-                  state.gyroDelta = 0.0;
-                }),
+            Commands.runOnce(() -> {
+              state.positions = drive.getWheelRadiusCharacterizationPositions();
+              state.lastAngle = drive.getRotation();
+              state.gyroDelta = 0.0;
+            }),
 
             // Update gyro delta
             Commands.run(
@@ -491,21 +486,20 @@ public class DriveCommands {
                     })
 
                 // When cancelled, calculate and print results
-                .finallyDo(
-                    () -> {
-                      double[] positions = drive.getWheelRadiusCharacterizationPositions();
-                      double wheelDelta = 0.0;
-                      for (int i = 0; i < 4; i++) {
-                        wheelDelta += Math.abs(positions[i] - state.positions[i]) / 4.0;
-                      }
-                      double wheelRadius =
-                          (state.gyroDelta * SwerveDriveIO.DRIVE_BASE_RADIUS) / wheelDelta;
+                .finallyDo(() -> {
+                  double[] positions = drive.getWheelRadiusCharacterizationPositions();
+                  double wheelDelta = 0.0;
+                  for (int i = 0; i < 4; i++) {
+                    wheelDelta += Math.abs(positions[i] - state.positions[i]) / 4.0;
+                  }
+                  double wheelRadius =
+                      (state.gyroDelta * SwerveDriveIO.DRIVE_BASE_RADIUS) / wheelDelta;
 
-                      Logger.recordOutput("Drive/WheelRadius/WheelDelta", wheelDelta);
-                      Logger.recordOutput("Drive/WheelRadius/GyroDelta", state.gyroDelta);
-                      Logger.recordOutput("Drive/WheelRadius/Result", wheelRadius);
-                      Logger.recordOutput("Drive/WheelRadius/CharacterizationComplete", true);
-                    })));
+                  Logger.recordOutput("Drive/WheelRadius/WheelDelta", wheelDelta);
+                  Logger.recordOutput("Drive/WheelRadius/GyroDelta", state.gyroDelta);
+                  Logger.recordOutput("Drive/WheelRadius/Result", wheelRadius);
+                  Logger.recordOutput("Drive/WheelRadius/CharacterizationComplete", true);
+                })));
   }
 
   private static class WheelRadiusCharacterizationState {

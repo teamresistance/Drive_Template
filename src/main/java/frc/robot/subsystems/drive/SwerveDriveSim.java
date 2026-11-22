@@ -60,7 +60,7 @@ public class SwerveDriveSim implements SwerveDriveIO {
     SimulatedArena.getInstance().addDriveTrainSimulation(driveSimulation.getDriveTrainSimulation());
     SimulatedArena.getInstance().resetFieldForAuto();
     field2d = new Field2d();
-    SmartDashboard.putData("Field2d", field2d);
+    SmartDashboard.putData("Field2d", field2d); // TODO: Replaced by Telemetry
 
     configure(); // Configure AutoBuilder and PathPlanner
   }
@@ -84,7 +84,6 @@ public class SwerveDriveSim implements SwerveDriveIO {
     driveSimulation.periodic();
     SimulatedArena.getInstance().simulationPeriodic();
     field2d.setRobotPose(driveSimulation.getOdometryEstimatedPose());
-    SmartDashboard.putData("Field2d", field2d);
     Logger.recordOutput("DriveSIM/Actual Pose", getPose());
   }
 
