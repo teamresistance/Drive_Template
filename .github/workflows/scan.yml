@@ -83,14 +83,24 @@ jobs:
           distribution: "temurin"
           java-version: ${{ env.JAVA_VERSION }}
 
+      # Restore the shared Gradle cache so vendordep artifacts (e.g. Studica, whose
+      # Maven host sometimes returns 403 to GitHub runners) don't need to be re-downloaded.
+      - name: Cache Gradle packages
+        uses: actions/cache@v6
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+
       - name: Initialize
         uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
+          build-mode: manual
           config-file: ./.github/codeql/codeql-config.yml
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v4
+      - name: Build
+        run: ./gradlew --no-daemon testClasses
 
       - name: Analyze
         uses: github/codeql-action/analyze@v4
