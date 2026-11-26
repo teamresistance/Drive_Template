@@ -11,6 +11,7 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -28,6 +29,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.generated.TunerConstants;
+import frc.robot.lib.BLine.FollowPath;
 import frc.robot.util.LocalADStarAK;
 import frc.robot.util.TimestampedVisionUpdate;
 import java.util.List;
@@ -105,6 +107,7 @@ public interface SwerveDriveIO extends Subsystem {
   }
 
   default void configure() {
+    configureBLine();
 
     AutoBuilder.configure(
         this::getPose,
@@ -127,7 +130,43 @@ public interface SwerveDriveIO extends Subsystem {
         targetPose -> Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
   }
 
+  /** Configures BLine defaults, logging, and the reusable path-following builder. */
+  default void configureBLine() {
+    FollowPath.setDoubleLoggingConsumer(
+        value -> Logger.recordOutput("Bline/" + value.getFirst(), value.getSecond()));
+    FollowPath.setBooleanLoggingConsumer(
+        value -> Logger.recordOutput("Bline/" + value.getFirst(), value.getSecond()));
+    FollowPath.setPoseLoggingConsumer(
+        value -> Logger.recordOutput("Bline/" + value.getFirst(), value.getSecond()));
+    FollowPath.setTranslationListLoggingConsumer(
+        value -> Logger.recordOutput("Bline/" + value.getFirst(), value.getSecond()));
+  }
+
+  /** Creates the BLine builder configured for this drivetrain. */
+  default FollowPath.Builder getBLineBuilder() {
+    return new FollowPath.Builder(
+            this, // subsystem
+            this::getPose, // get pose
+            this::getRobotRelativeSpeeds, // robot relative ChassisSpeeds
+            this::driveRobotRelative, // robot relative drive consumer
+            new PIDController(5.0, 0.0, 0.0), // translation
+            new PIDController(10.0, 0.0, 0.0), // rotation
+            new PIDController(1.0, 0.0, 0.0)) // cross-track
+        .withDefaultShouldFlip()
+        .withTRatioBasedTranslationHandoffs(true);
+  }
+
   ChassisSpeeds getChassisSpeeds();
+
+  /** Returns measured chassis velocity in the robot-relative coordinate frame for BLine. */
+  default ChassisSpeeds getRobotRelativeSpeeds() {
+    return getChassisSpeeds();
+  }
+
+  /** Runs a robot-relative chassis velocity request from BLine. */
+  default void driveRobotRelative(ChassisSpeeds speeds) {
+    runVelocity(speeds);
+  }
 
   Transform2d getVelocity();
 

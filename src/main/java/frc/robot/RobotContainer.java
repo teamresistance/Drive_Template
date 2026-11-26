@@ -3,6 +3,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -11,10 +12,13 @@ import frc.robot.commands.ContinuousLEDCommand;
 import frc.robot.commands.ContinuousVisionStdDevCommand;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.lib.BLine.FollowPath;
+import frc.robot.lib.BLine.Path;
 import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.vision.*;
 import java.io.IOException;
+import java.nio.file.Files;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.photonvision.PhotonCamera;
@@ -42,6 +46,9 @@ public class RobotContainer {
 
   // Controller
   private final CommandXboxController driver = new CommandXboxController(0);
+
+  // BLine path following
+  private final FollowPath.Builder blineBuilder;
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -83,6 +90,8 @@ public class RobotContainer {
                 new ModuleIO() {});
     }
 
+    blineBuilder = drive.getBLineBuilder();
+
     visionPhoton = configureAprilTagVision();
     visionLimelight.setDataInterfaces(drive::getPose, drive::addAutoVisionMeasurement);
     configureNamedCommands();
@@ -94,12 +103,44 @@ public class RobotContainer {
 
   private void configureNamedCommands() {
     NamedCommands.registerCommand("Stop", Commands.runOnce(drive::stop, drive));
+    FollowPath.registerEventTrigger("Stop", () -> drive.stop());
   }
 
   private LoggedDashboardChooser<Command> configureAutos() {
     // Set up pathplanner auto routines
     LoggedDashboardChooser<Command> chooser =
         new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+
+    java.nio.file.Path blinePaths =
+        Filesystem.getDeployDirectory().toPath().resolve("autos").resolve("paths");
+    if (Files.isDirectory(blinePaths)) {
+      try (var files = Files.list(blinePaths)) {
+        files
+            .filter(file -> file.toString().endsWith(".json"))
+            .sorted()
+            .forEach(
+                file -> {
+                  String name = file.getFileName().toString();
+                  String stem = name.substring(0, name.length() - 5);
+                  try {
+                    Path path = new Path(stem);
+                    if (!path.isValid()) {
+                      throw new IllegalArgumentException("BLine path is invalid: " + stem);
+                    }
+                    Command blineCommand = blineBuilder.withPoseReset(drive::setPose).build(path);
+                    blineBuilder.withPoseReset(ignored -> {});
+                    chooser.addOption("BLine - " + stem, blineCommand);
+                  } catch (RuntimeException e) {
+                    Logger.recordOutput("BLine/LoadError/" + stem, e.getMessage());
+                    DriverStation.reportError(
+                        "Unable to load BLine path " + stem + ": " + e.getMessage(), false);
+                  }
+                });
+      } catch (IOException e) {
+        Logger.recordOutput("BLine/LoadError", e.getMessage());
+        DriverStation.reportError("Unable to list BLine paths: " + e.getMessage(), false);
+      }
+    }
 
     // Set up SysId routines
     chooser.addOption(

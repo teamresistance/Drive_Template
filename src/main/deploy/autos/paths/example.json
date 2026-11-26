@@ -1,0 +1,94 @@
+{
+  "path_elements": [
+    {
+      "type": "waypoint",
+      "translation_target": {
+        "handoff_mode": "radius",
+        "x_meters": 2.20572,
+        "y_meters": 4.52266,
+        "intermediate_handoff_radius_meters": 0.45,
+        "handoff_radius_source": "auto"
+      },
+      "rotation_target": {
+        "rotation_radians": 0.0,
+        "profiled_rotation": true
+      }
+    },
+    {
+      "type": "translation",
+      "x_meters": 1.45568,
+      "y_meters": 4.69046,
+      "intermediate_handoff_radius_meters": 0.498,
+      "handoff_radius_source": "auto"
+    },
+    {
+      "type": "waypoint",
+      "translation_target": {
+        "x_meters": 1.43123,
+        "y_meters": 2.97924,
+        "intermediate_handoff_radius_meters": 0.45
+      },
+      "rotation_target": {
+        "rotation_radians": -1.39626,
+        "profiled_rotation": true
+      }
+    },
+    {
+      "type": "waypoint",
+      "translation_target": {
+        "x_meters": 2.33157,
+        "y_meters": 3.53161,
+        "intermediate_handoff_radius_meters": 0.345,
+        "handoff_radius_source": "auto"
+      },
+      "rotation_target": {
+        "rotation_radians": -0.7854,
+        "profiled_rotation": true
+      }
+    },
+    {
+      "type": "waypoint",
+      "translation_target": {
+        "x_meters": 2.21351,
+        "y_meters": 4.49489,
+        "intermediate_handoff_radius_meters": 0.45,
+        "handoff_radius_source": "auto"
+      },
+      "rotation_target": {
+        "rotation_radians": 0.0,
+        "profiled_rotation": true
+      }
+    }
+  ],
+  "tank_drive_direction": "forward",
+  "constraints": {
+    "end_translation_tolerance_meters": 0.05,
+    "end_rotation_tolerance_deg": 3.0,
+    "max_velocity_meters_per_sec": [
+      {
+        "value": 2.0,
+        "start_ordinal": 0,
+        "end_ordinal": 0,
+        "source": "auto_velocity"
+      },
+      {
+        "value": 4.0,
+        "start_ordinal": 1,
+        "end_ordinal": 1,
+        "source": "auto_velocity"
+      },
+      {
+        "value": 2.69,
+        "start_ordinal": 2,
+        "end_ordinal": 3,
+        "source": "auto_velocity"
+      },
+      {
+        "value": 4.0,
+        "start_ordinal": 4,
+        "end_ordinal": 4,
+        "source": "auto_velocity"
+      }
+    ]
+  }
+}
